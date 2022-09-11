@@ -39,6 +39,8 @@ namespace SpartaRemixStudio2022
         public event EventHandler SampleAdded;
         public IEnumerable<AVSample> GetSamples => Samples.Values;
 
+        public AVSample GetSampleByID(int id) => Samples.ContainsKey(id) ? Samples[id] : null;
+
         // Settings
         public int SampleRate = 48000;
 
@@ -96,7 +98,7 @@ namespace SpartaRemixStudio2022
                 Width = int.Parse(wh2[0]);
                 Height = int.Parse(wh2[1]);
 
-                string nd = VideoInfo.GetSize(File);
+                string nd = VideoInfo.GetFPS(File);
                 string[] nd2 = nd.Split('/');
                 Fpsn = int.Parse(nd2[0]);
                 Fpsd = int.Parse(nd2[1]);

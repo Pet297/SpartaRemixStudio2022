@@ -317,27 +317,34 @@ namespace SpartaRemixStudio2022
         public bool HasVideo => true;
         public bool HasAudio => true;
 
-        public IAudioSample RepresentedAudio => throw new NotImplementedException();
-        public IVideoSample RepresentedVideo => throw new NotImplementedException();
+        public IAudioSample RepresentedAudio { get; private set; }
+        public IVideoSample RepresentedVideo { get; private set; }
 
         public void Init(Project p)
         {
-            throw new NotImplementedException();
+            AVSample avs = p.GetSampleByID(sampleID);
+            if (avs != null)
+            {
+                RepresentedAudio = avs.AudioSample;
+                RepresentedVideo = avs.VideoSample;
+            }
+        }
+
+        public IAudioSampleReader GetAudioReader(long position)
+        {
+            return RepresentedAudio?.GetReader(position / 48000f, 1, 1, 1, 0, 0);
+        }
+        public IVideoSampleReader GetVideoReader(long position)
+        {
+            return RepresentedVideo?.GetReader(position / 48000f, 1, 1, 1, 0, 0);
         }
 
         public bool AcceptVariable(uint id, Stream s, int lenght)
         {
             throw new NotImplementedException();
         }
-        public IAudioSampleReader GetAudioReader(long position)
-        {
-            throw new NotImplementedException();
-        }
+        
         public List<uint> GetVarNamesToSave()
-        {
-            throw new NotImplementedException();
-        }
-        public IVideoSampleReader GetVideoReader(long position)
         {
             throw new NotImplementedException();
         }

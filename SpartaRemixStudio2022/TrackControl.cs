@@ -111,6 +111,7 @@ namespace SpartaRemixStudio2022
                     long pos = tlc.CursorToMediaPosition(e.X);
                     newMedia.Position = tlc.RoundPosition(pos);
                     newMedia.Length = 1000; // TODO: Default based on settings
+                    t.AddMedia(newMedia);
                     pictureBoxMedia.Invalidate();
                 }
             }
