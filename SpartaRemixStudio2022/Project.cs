@@ -236,6 +236,12 @@ namespace SpartaRemixStudio2022
         }
         public ReadOnlyCollection<Media> GetMedia => TrackMedia.AsReadOnly();
 
+        public void SetType(ITrackType trackType)
+        {
+            // TODO: Factory ID
+            ExtType = trackType;
+        }
+
         public Media ColideMedia(long cursor)
         {
             foreach(Media m in TrackMedia)
@@ -251,7 +257,7 @@ namespace SpartaRemixStudio2022
         public Tuple<Media, int> CheckForNewMediaFast(int currentIndex, long newTimeStamp)
         {
             Tuple<Media, int> newMedia = new Tuple<Media, int>(null, currentIndex);
-            while (currentIndex + 1 < TrackMedia.Count && TrackMedia[currentIndex + 1].StartTime < newTimeStamp)
+            while (currentIndex + 1 < TrackMedia.Count && TrackMedia[currentIndex + 1].Position <= newTimeStamp)
             {
                 newMedia = new Tuple<Media, int>(TrackMedia[currentIndex + 1], currentIndex + 1);
                 currentIndex++;
@@ -294,7 +300,7 @@ namespace SpartaRemixStudio2022
     {
     }
 
-    public static class DefaultExtensions
+    public static class ExtensionMethods
     {
         public static IAudioSampleReader GetAudioReaderDefault(this Media m, long position)
         {

@@ -32,7 +32,8 @@ namespace SpartaRemixStudio2022
         public bool CanHaveChildren => true;
         public ITrackAudioReader GetAudio(float time)
         {
-            return new RegularTrackAudioReader(parent, time);
+            // TODO: All timing in longs, not float
+            return new RegularTrackAudioReader(parent, (long)time);
         }
         public ITrackVideoReader GetVideo(float time)
         {
@@ -106,12 +107,15 @@ namespace SpartaRemixStudio2022
         readonly Track readTrack = null;
         IAudioSampleReader currentReader = null;
         int mediaPos = -1;
+        long currentPos = 0;
+        float[] tempBuffer = new float[100]; 
 
-        public RegularTrackAudioReader(Track track, float position)
+        public RegularTrackAudioReader(Track track, long position)
         {
-            Tuple<Media, int> current = track.BeginAt((long)position);
+            Tuple<Media, int> current = track.BeginAt(position);
             currentMedia = current.Item1;
             mediaPos = current.Item2;
+            currentPos = position;
             readTrack = track;
 
             if (currentMedia != null) StartReadingMedia(currentMedia, position);
@@ -128,9 +132,9 @@ namespace SpartaRemixStudio2022
                 currentReader = null;
             }
         }
-        void CheckForNewMedia(float currentPos)
+        void CheckForNewMedia()
         {
-            Tuple<Media, int> newm = readTrack.CheckForNewMediaFast(mediaPos, (long)currentPos);
+            Tuple<Media, int> newm = readTrack.CheckForNewMediaFast(mediaPos, currentPos);
             if (newm.Item1 != null)
             {
                 currentMedia = newm.Item1;
@@ -138,9 +142,9 @@ namespace SpartaRemixStudio2022
                 StartReadingMedia(currentMedia, currentPos);
             }
         }
-        void CheckCurrentMediaStoped(float currentPos)
+        void CheckCurrentMediaStoped()
         {
-            if (currentMedia.Position + currentMedia.Length < currentPos)
+            if (currentMedia != null && currentMedia.Position + currentMedia.Length < currentPos)
             {
                 currentMedia = null;
                 currentReader = null;
@@ -150,11 +154,27 @@ namespace SpartaRemixStudio2022
 
         public void Read(float[] buffer, int count, float position, float pitch, float speed, float formant, float modx, float mody)
         {
-            CheckForNewMedia(position);
-            CheckCurrentMediaStoped(position);
-            if (currentReader != null)
+
+            // TODO: Audio precision quality constant (50 * 2)
+            int left = count;
+            int part = 0;
+
+            while (left > 0)
             {
-                currentReader.ReadMore(buffer, count, position, pitch,speed, formant, modx, mody);
+                CheckForNewMedia();
+                CheckCurrentMediaStoped();
+                if (currentReader != null)
+                {
+                    int toRead = Math.Min(left, 100);
+                    currentReader.ReadMore(tempBuffer, toRead, position, pitch, speed, formant, modx, mody);
+                    for (int i = 0; i < toRead; i++)
+                    {
+                        buffer[i + 100 * part] = tempBuffer[i];
+                    }
+                }
+                left -= 100;
+                this.currentPos += 100 / 2;
+                part++;
             }
         }
     }
@@ -232,6 +252,8 @@ namespace SpartaRemixStudio2022
             DefaultPitch = 0;
             DefaultSpeed = 1;
             DefaultVolume = 1;
+
+            if (Audio == null) Audio = new float[0];
         }
         public AudioCutSample(int channels, float sampleFreq, float[] audio, VideoSource vs, float timeSec)
         {
@@ -244,16 +266,20 @@ namespace SpartaRemixStudio2022
             SourceFile = vs.File;
             SourceIndex = vs.Index;
             SourceTime = timeSec;
-        }
 
+            if (Audio == null) Audio = new float[0];
+        }
+        
+        // TODO: shift stretch position
         public IAudioSampleReader GetReader(double position, double pitch, double speed, double formant, double modx, double mody)
         {
-            throw new NotImplementedException();
+            return new AudioCutReader(this);
         }
     }
     class AudioCutReader : IAudioSampleReader
     {
         AudioCutSample acs;
+        int position = 0;
 
         public AudioCutReader(AudioCutSample acs)
         {
@@ -262,11 +288,22 @@ namespace SpartaRemixStudio2022
 
         public void ReadMore(float[] buffer, int count, float position, float pitch, float speed, float formant, float modx, float mody)
         {
-            throw new NotImplementedException();
+            int toRead = Math.Min(count, acs.Audio.Length - this.position);
+
+            for (int i = 0; i < toRead; i++)
+            {
+                buffer[i] = acs.Audio[this.position + i];
+            }
+            this.position += toRead;
         }
         public float ReadOne(float position, float pitch, float speed, float formant, float modx, float mody)
         {
-            throw new NotImplementedException();
+            if (this.position < acs.Audio.Length)
+            {
+                this.position++;
+                return acs.Audio[this.position - 1];
+            }
+            return 0;
         }
     }
 

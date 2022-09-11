@@ -100,6 +100,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AudioProcessing.cs" />
     <Compile Include="DefaultExtensions.cs" />
     <Compile Include="DefaultExtensionsAutogen.cs" />
     <Compile Include="Extensibility.cs" />

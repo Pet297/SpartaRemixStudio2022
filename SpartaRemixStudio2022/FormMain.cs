@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NAudio.Wave;
 using OpenTK.Graphics.OpenGL;
 
 namespace SpartaRemixStudio2022
@@ -26,9 +27,7 @@ namespace SpartaRemixStudio2022
 
             // DEBUG
             p.timeline.Tracks.Add(new Track());
-            p.timeline.Tracks[0].AddMedia(new Media() { Position = 0, Length = 1000 });
-            p.timeline.Tracks[0].AddMedia(new Media() { Position = 3000, Length = 1000 });
-            p.timeline.Tracks[0].AddMedia(new Media() { Position = 5000, Length = 1000 });
+            p.timeline.Tracks[0].SetType(new RegularTrackFactory().CreateNewInstance(p.timeline.Tracks[0]));
             p.timeline.Tracks.Add(new Track());
             p.timeline.Tracks.Add(new Track());
             p.timeline.Tracks.Add(new Track());
@@ -107,6 +106,27 @@ namespace SpartaRemixStudio2022
         {
             FormSourceViewer fsv = new FormSourceViewer(p);
             fsv.Show();
+        }
+
+        // DEBUG: Play / Stop
+        WaveOut wo = null;
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (wo == null)
+            {
+                // Play
+                wo = new WaveOut(Handle);
+                wo.Init(new TrackReaderISP(p.timeline.Tracks[0], 0), true);
+                wo.DesiredLatency = 100;
+                wo.Play();
+            }
+            else
+            {
+                // Stop
+                wo.Stop();
+                wo.Dispose();
+                wo = null;
+            }
         }
     }
 }

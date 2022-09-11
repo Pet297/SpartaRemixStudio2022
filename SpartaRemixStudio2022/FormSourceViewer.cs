@@ -151,6 +151,7 @@ namespace SpartaRemixStudio2022
             {
                 float[] audio = new float[len2];
                 isp.Read(audio, 0, audio.Length);
+                return audio;
             }
 
             return null;
