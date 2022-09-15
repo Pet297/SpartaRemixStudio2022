@@ -153,10 +153,46 @@ namespace SpartaRemixStudio2022
         {
             timeline.Gridlines.Clear();
             // 32 per beat
-            for (int i = 0; i < beats * 16; i++)
+            for (int i = 0; i < beats; i++)
             {
-                float offset = i * (48000L * 240) / (BPM * 16f) + startTime;
-                timeline.Gridlines.Add(new TimelineGridline((long)offset, 200, (i % 4 == 0 ? $"{i / 16} {i / 4 % 4}/4" : "")));
+                for (int j = 0; j < 96; j++)
+                {
+                    byte color = 25;
+
+                    if (i % 2 == 0) color -= 5;
+
+                    if (j % 24 >= 18) color -= 0;
+                    else if (j % 24 >= 12) color -= 2;
+                    else if (j % 24 >= 6) color -= 3;
+                    else  color -= 5;
+
+                    if (j % 6 < 3) color /= 2;
+
+                    if (j % 3 == 2) color += 4;
+                    if (j % 3 == 1) color += 2;
+
+                    float offset = (i * 96 + j) * (48000L * 240) / (BPM * 96f) + startTime;
+
+                    int visibility = 50; //PLACE HOLDER
+                    if (j % 3 == 0) visibility *= 3;
+                    if (j % 6 == 0) visibility *= 2;
+                    if (j % 12 == 0) visibility *= 2;
+                    if (j % 24 == 0) visibility *= 2;
+                    if (j % 48 == 0) visibility *= 2;
+                    if (j % 96 == 0)
+                    {
+                        visibility *= 2;
+                        int more = i;
+                        while (more % 2 == 0 && more != 0)
+                        {
+                            more /= 2;
+                            visibility *= 2;
+                        }
+                        if (more == 0) visibility = int.MaxValue;
+                    }
+
+                    timeline.Gridlines.Add(new TimelineGridline((long)offset, visibility, (j % 24 == 0 ? $"{i} {j / 24 % 4}/4" : ""), color, color, color));
+                }
             }
         }
 

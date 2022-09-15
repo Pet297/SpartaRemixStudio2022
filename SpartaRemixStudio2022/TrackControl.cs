@@ -35,18 +35,32 @@ namespace SpartaRemixStudio2022
         }
         private void pictureBoxMedia_Paint(object sender, PaintEventArgs e)
         {
-            e.Graphics.FillRectangle(Brushes.DarkGray, 0, 0, pictureBoxMedia.Width, pictureBoxMedia.Height);
-            int r = -1;
+            e.Graphics.FillRectangle(Brushes.Black, 0, 0, pictureBoxMedia.Width, pictureBoxMedia.Height); ;
 
             if (tl != null)
             {
-                foreach (TimelineGridline tg in tl.Gridlines)
+                List<TimelineGridline> visible = new List<TimelineGridline>(tl.Gridlines);
+                visible.RemoveAll((tg) => (tg.MaxSamplesPerPixel <= tlc.SamplesPerPixel));
+
+                if (visible.Count > 0)
                 {
-                    if (tlc.SamplesPerPixel <= tg.MaxSamplesPerPixel && tg.Position - tlc.StartTime > 0 && (tg.Position - tlc.StartTime) / tlc.SamplesPerPixel < pictureBoxMedia.Width)
+                    TimelineGridline tgl = visible[visible.Count - 1];
+                }
+
+                for (int i = 0; i < visible.Count - 1; i++)
+                {
+                    TimelineGridline tg0 = visible[i];
+                    TimelineGridline tg1 = visible[i + 1];
+
+                    if (tg1.Position - tlc.StartTime > 0 &&
+                        (tg0.Position - tlc.StartTime) / tlc.SamplesPerPixel < pictureBoxMedia.Width)
                     {
-                        r++;
-                        int px = (int)((tg.Position - tlc.StartTime) / tlc.SamplesPerPixel);
-                        e.Graphics.FillRectangle((r % 2 == 0 ? Brushes.LightGray : Brushes.DarkGray), px, 0, pictureBoxMedia.Width, pictureBoxMedia.Height);
+                        int px0 = (int)((tg0.Position - tlc.StartTime) / tlc.SamplesPerPixel);
+                        int px1 = (int)((tg1.Position - tlc.StartTime) / tlc.SamplesPerPixel) - 1;
+                        using (SolidBrush sb = new SolidBrush(Color.FromArgb(tg0.R, tg0.G, tg0.B)))
+                        {
+                            e.Graphics.FillRectangle(sb, px0, 0, px1 - px0, pictureBoxMedia.Height - 1);
+                        }
                     }
                 }
             }

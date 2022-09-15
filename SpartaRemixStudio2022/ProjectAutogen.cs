@@ -295,6 +295,9 @@ namespace SpartaRemixStudio2022
         public long Position { get; private set; }
         public float MaxSamplesPerPixel { get; private set; }
         public string Name { get; private set; }
+        public byte R { get; private set; }
+        public byte G { get; private set; }
+        public byte B { get; private set; }
 
         public bool AcceptVariable(uint id, Stream s, int lenght)
         {
@@ -303,6 +306,9 @@ namespace SpartaRemixStudio2022
                 case 0x100: Position = StreamHelper.LoadUnmanaged<long>(s); return true;
                 case 0x101: MaxSamplesPerPixel = StreamHelper.LoadUnmanaged<float>(s); return true;
                 case 0x102: Name = StreamHelper.LoadString(s); return true;
+                case 0x200: R = StreamHelper.LoadUnmanaged<byte>(s); return true;
+                case 0x201: G = StreamHelper.LoadUnmanaged<byte>(s); return true;
+                case 0x202: B = StreamHelper.LoadUnmanaged<byte>(s); return true;
                 default: return false;
             }
         }
@@ -311,6 +317,9 @@ namespace SpartaRemixStudio2022
             Position = 0;
             MaxSamplesPerPixel = 10;
             Name = "";
+            R = 0;
+            G = 0;
+            B = 0;
         }
         public void SaveVariable(uint id, Stream s)
         {
@@ -319,6 +328,9 @@ namespace SpartaRemixStudio2022
                 case 0x100: StreamHelper.SaveUnmanaged<long>(s, Position); break;
                 case 0x101: StreamHelper.SaveUnmanaged<float>(s, MaxSamplesPerPixel); break;
                 case 0x102: StreamHelper.SaveString(s, Name); break;
+                case 0x200: StreamHelper.SaveUnmanaged<byte>(s, R); break;
+                case 0x201: StreamHelper.SaveUnmanaged<byte>(s, G); break;
+                case 0x202: StreamHelper.SaveUnmanaged<byte>(s, B); break;
             }
         }
         public int ReportLenghtOfVariable(uint id)
@@ -328,12 +340,15 @@ namespace SpartaRemixStudio2022
                 case 0x100: return StreamHelper.GetUnmanagedLenght<long>(Position);
                 case 0x101: return StreamHelper.GetUnmanagedLenght<float>(MaxSamplesPerPixel);
                 case 0x102: return StreamHelper.GetLenght(Name);
+                case 0x200: return StreamHelper.GetUnmanagedLenght<byte>(R);
+                case 0x201: return StreamHelper.GetUnmanagedLenght<byte>(G);
+                case 0x202: return StreamHelper.GetUnmanagedLenght<byte>(B);
                 default: return 0;
             }
         }
         public List<uint> GetVarNamesToSave()
         {
-            return new List<uint>() { 0x100, 0x101, 0x102 };
+            return new List<uint>() { 0x100, 0x101, 0x102, 0x200, 0x201, 0x202 };
         }
         public TimelineGridline()
         {

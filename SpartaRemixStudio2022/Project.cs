@@ -185,11 +185,14 @@ namespace SpartaRemixStudio2022
     }
     public partial class TimelineGridline
     {
-        public TimelineGridline(long position, float maxSamplesPerPixel, string name)
+        public TimelineGridline(long position, float maxSamplesPerPixel, string name, byte R, byte G, byte B)
         {
             Position = position;
             MaxSamplesPerPixel = maxSamplesPerPixel;
             Name = name;
+            this.R = R;
+            this.G = G;
+            this.B = B;
         }
     }
     public partial class Pattern
