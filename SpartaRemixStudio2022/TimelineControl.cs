@@ -30,6 +30,7 @@ namespace SpartaRemixStudio2022
         public long StartTime = 0;
         public long SamplesPerPixel = 50;
         public int TrackHeight = 100;
+        int scrollDelta = 0;
 
         // TODO: get set pro posuvnik
         public long MaxTime = 48000L * 600;
@@ -58,10 +59,45 @@ namespace SpartaRemixStudio2022
 
                 y += TrackHeight;
             }
+            PanelTracks.MouseWheel += (s, e) => PanelTracks_MouseWheel(s, e);
 
             // TODO: get set pro posuvnik
             HScrollTime.Maximum = (int)(MaxTime / SamplesPerPixel);
             HScrollTime.SmallChange = 10;
+        }
+        private void PanelTracks_MouseWheel(object sender, MouseEventArgs e)
+        {
+            scrollDelta += e.Delta;
+
+            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
+            {
+                while (scrollDelta <= -120)
+                {
+                    SamplesPerPixel = (int)(SamplesPerPixel * 1.1f);
+                    scrollDelta += 120;
+                }
+                while (scrollDelta >= 120)
+                {
+                    SamplesPerPixel = (int)(SamplesPerPixel / 1.1f);
+                    scrollDelta -= 120;
+                }
+                if (SamplesPerPixel < 20)
+                {
+                    SamplesPerPixel = 20;
+                }
+                PanelTracks.Invalidate(true);
+            }
+            // horizontal
+            else
+            {
+                //vertical
+            }
+
+            scrollDelta %= 120;
+        }
+
+        private void PanelTracks_Scroll(object sender, ScrollEventArgs e)
+        {
         }
         private void TimelineControl_Paint(object sender, PaintEventArgs e)
         {

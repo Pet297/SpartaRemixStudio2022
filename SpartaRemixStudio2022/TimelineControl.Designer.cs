@@ -43,13 +43,13 @@
             // 
             // PanelTracks
             // 
-            this.PanelTracks.AutoScroll = true;
             this.PanelTracks.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.PanelTracks.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PanelTracks.Location = new System.Drawing.Point(0, 0);
             this.PanelTracks.Name = "PanelTracks";
             this.PanelTracks.Size = new System.Drawing.Size(829, 381);
             this.PanelTracks.TabIndex = 1;
+            this.PanelTracks.Scroll += new System.Windows.Forms.ScrollEventHandler(this.PanelTracks_Scroll);
             // 
             // TimelineControl
             // 
