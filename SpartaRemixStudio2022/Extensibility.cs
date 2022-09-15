@@ -79,8 +79,8 @@ namespace SpartaRemixStudio2022
     }
     public interface IAudioSampleReader
     {
-        float ReadOne(float position, float pitch, float speed, float formant, float modx, float mody);
-        void ReadMore(float[] buffer, int count, float position, float pitch, float speed, float formant, float modx, float mody);
+        float ReadOne(double position, double pitch, double speed, double formant, double modx, double mody);
+        void ReadMore(float[] buffer, int count, double position, double pitch, double speed, double formant, double modx, double mody);
     }
     public interface IVideoSample : IComplexObject
     {
@@ -89,7 +89,7 @@ namespace SpartaRemixStudio2022
     }
     public interface IVideoSampleReader
     {
-        TextureInfo ReadOne(float position, float pitch, float speed, float formant, float modx, float mody);
+        TextureInfo ReadOne(double position, double pitch, double speed, double formant, double modx, double mody);
     }
     public struct TextureInfo
     {
@@ -124,8 +124,8 @@ namespace SpartaRemixStudio2022
         bool HasVideoEffects { get; }
         bool HasAudioEffects { get; }
         bool CanHaveChildren { get; }
-        ITrackAudioReader GetAudio(float time);
-        ITrackVideoReader GetVideo(float time);
+        ITrackAudioReader GetAudio(long time);
+        ITrackVideoReader GetVideo(long time);
     }
     public interface IMediaType : IComplexObject
     {
@@ -141,11 +141,11 @@ namespace SpartaRemixStudio2022
     }
     public interface ITrackAudioReader
     {
-        void Read(float[] buffer, int count, float position, float pitch, float speed, float formant, float modx, float mody);
+        void Read(float[] buffer, int count, long position);
     }
     public interface ITrackVideoReader
     {
-        TextureInfo Read(float position, float pitch, float speed, float formant, float modx, float mody);
+        TextureInfo Read(long position);
     }
 
     // media

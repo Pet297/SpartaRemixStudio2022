@@ -15,7 +15,7 @@ namespace SpartaRemixStudio2022
 
         public TrackReaderISP(Track t, long position)
         {
-            reader = t.ExtType?.GetAudio(position / 48000f);
+            reader = t.ExtType?.GetAudio(position);
             currentPosition = position;
         }
 
@@ -25,7 +25,7 @@ namespace SpartaRemixStudio2022
 
             if (reader == null) return count;
 
-            reader.Read(buffer, count, currentPosition / 48000f, 0, 1, 0, 0, 0);
+            reader.Read(buffer, count, currentPosition);
             currentPosition += count / 2;
 
             // shift if required by offset

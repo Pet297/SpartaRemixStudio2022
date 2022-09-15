@@ -117,10 +117,10 @@ namespace SpartaRemixStudio2022
         {
             timeline.Gridlines.Clear();
             // 32 per beat
-            for (int i = 0; i < beats * 32; i++)
+            for (int i = 0; i < beats * 16; i++)
             {
-                float offset = i * (48000L * 240) / (BPM * 32f) + startTime;
-                timeline.Gridlines.Add(new TimelineGridline((long)offset, 200, (i % 8 == 0 ? $"{i / 32} {i / 8 % 4}/4" : "")));
+                float offset = i * (48000L * 240) / (BPM * 16f) + startTime;
+                timeline.Gridlines.Add(new TimelineGridline((long)offset, 200, (i % 4 == 0 ? $"{i / 16} {i / 4 % 4}/4" : "")));
             }
         }
 

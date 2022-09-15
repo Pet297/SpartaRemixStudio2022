@@ -30,12 +30,11 @@ namespace SpartaRemixStudio2022
         public bool HasVideoEffects => true;
         public bool HasAudioEffects => true;
         public bool CanHaveChildren => true;
-        public ITrackAudioReader GetAudio(float time)
+        public ITrackAudioReader GetAudio(long time)
         {
-            // TODO: All timing in longs, not float
-            return new RegularTrackAudioReader(parent, (long)time);
+            return new RegularTrackAudioReader(parent, time);
         }
-        public ITrackVideoReader GetVideo(float time)
+        public ITrackVideoReader GetVideo(long time)
         {
             return new RegularTrackVideoReader(parent, time);
         }
@@ -52,9 +51,9 @@ namespace SpartaRemixStudio2022
         IVideoSampleReader currentReader = null;
         int mediaPos = -1;
 
-        public RegularTrackVideoReader(Track track, float position)
+        public RegularTrackVideoReader(Track track, long position)
         {
-            Tuple<Media, int> current = track.BeginAt((long)position);
+            Tuple<Media, int> current = track.BeginAt(position);
             currentMedia = current.Item1;
             mediaPos = current.Item2;
             readTrack = track;
@@ -62,7 +61,7 @@ namespace SpartaRemixStudio2022
             if (currentMedia != null) StartReadingMedia(currentMedia, position);
         }
 
-        void StartReadingMedia(Media m, float currentPos)
+        void StartReadingMedia(Media m, long currentPos)
         {
             if (m.ExtType.HasVideo)
             {
@@ -73,7 +72,7 @@ namespace SpartaRemixStudio2022
                 currentReader = null;
             }
         }
-        void CheckForNewMedia(float currentPos)
+        void CheckForNewMedia(long currentPos)
         {
             Tuple<Media, int> newm = readTrack.CheckForNewMediaFast(mediaPos, (long)currentPos);
             if (newm.Item1 != null)
@@ -83,7 +82,7 @@ namespace SpartaRemixStudio2022
                 StartReadingMedia(currentMedia, currentPos);
             }
         }
-        void CheckCurrentMediaStoped(float currentPos)
+        void CheckCurrentMediaStoped(long currentPos)
         {
             if (currentMedia.Position + currentMedia.Length < currentPos)
             {
@@ -93,11 +92,11 @@ namespace SpartaRemixStudio2022
             }
         }
 
-        public TextureInfo Read(float position, float pitch, float speed, float formant, float modx, float mody)
+        public TextureInfo Read(long position)
         {
             CheckForNewMedia(position);
             CheckCurrentMediaStoped(position);
-            if (currentReader != null) return currentReader.ReadOne(position - (float)currentMedia.StartTime, pitch, speed, formant, modx, mody);
+            if (currentReader != null) return currentReader.ReadOne(position - (float)currentMedia.StartTime, currentMedia.Pitch, currentMedia.Speed, currentMedia.Formant, currentMedia.ModX, currentMedia.ModY);
             else return TextureInfo.None;
         }
     }
@@ -152,7 +151,7 @@ namespace SpartaRemixStudio2022
             }
         }
 
-        public void Read(float[] buffer, int count, float position, float pitch, float speed, float formant, float modx, float mody)
+        public void Read(float[] buffer, int count, long position)
         {
 
             // TODO: Audio precision quality constant (50 * 2)
@@ -166,7 +165,7 @@ namespace SpartaRemixStudio2022
                 if (currentReader != null)
                 {
                     int toRead = Math.Min(left, 100);
-                    currentReader.ReadMore(tempBuffer, toRead, position, pitch, speed, formant, modx, mody);
+                    currentReader.ReadMore(tempBuffer, toRead, position, 0, 1, 0, 0, 0);
                     for (int i = 0; i < toRead; i++)
                     {
                         buffer[i + 100 * part] = tempBuffer[i];
@@ -228,7 +227,7 @@ namespace SpartaRemixStudio2022
         {
             this.vcs = vcs;
         }
-        public TextureInfo ReadOne(float position, float pitch, float speed, float formant, float modx, float mody)
+        public TextureInfo ReadOne(double position, double pitch, double speed, double formant, double modx, double mody)
         {
             return vcs.GetFrameAt(position);
         }
@@ -286,7 +285,7 @@ namespace SpartaRemixStudio2022
             this.acs = acs;
         }
 
-        public void ReadMore(float[] buffer, int count, float position, float pitch, float speed, float formant, float modx, float mody)
+        public void ReadMore(float[] buffer, int count, double position, double pitch, double speed, double formant, double modx, double mody)
         {
             int toRead = Math.Min(count, acs.Audio.Length - this.position);
 
@@ -296,7 +295,7 @@ namespace SpartaRemixStudio2022
             }
             this.position += toRead;
         }
-        public float ReadOne(float position, float pitch, float speed, float formant, float modx, float mody)
+        public float ReadOne(double position, double pitch, double speed, double formant, double modx, double mody)
         {
             if (this.position < acs.Audio.Length)
             {
