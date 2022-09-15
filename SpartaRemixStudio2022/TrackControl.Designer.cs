@@ -126,7 +126,7 @@
             this.pictureBoxMedia.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBoxMedia.Location = new System.Drawing.Point(189, 0);
             this.pictureBoxMedia.Name = "pictureBoxMedia";
-            this.pictureBoxMedia.Size = new System.Drawing.Size(1012, 99);
+            this.pictureBoxMedia.Size = new System.Drawing.Size(424, 99);
             this.pictureBoxMedia.TabIndex = 1;
             this.pictureBoxMedia.DragDrop += new System.Windows.Forms.DragEventHandler(this.TrackControl_DragDrop);
             this.pictureBoxMedia.DragEnter += new System.Windows.Forms.DragEventHandler(this.pictureBoxMedia_DragEnter);
@@ -144,7 +144,7 @@
             this.Controls.Add(this.pictureBoxMedia);
             this.Controls.Add(this.panelSide);
             this.Name = "TrackControl";
-            this.Size = new System.Drawing.Size(1201, 99);
+            this.Size = new System.Drawing.Size(613, 99);
             this.DragDrop += new System.Windows.Forms.DragEventHandler(this.TrackControl_DragDrop);
             this.DragOver += new System.Windows.Forms.DragEventHandler(this.TrackControl_DragOver);
             this.DragLeave += new System.EventHandler(this.TrackControl_DragLeave);

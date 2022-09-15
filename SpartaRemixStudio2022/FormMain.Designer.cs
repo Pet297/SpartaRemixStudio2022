@@ -67,16 +67,16 @@ namespace SpartaRemixStudio2022
             // xTimeline
             // 
             this.xTimeline.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.xTimeline.Location = new System.Drawing.Point(12, 237);
+            this.xTimeline.Location = new System.Drawing.Point(12, 336);
             this.xTimeline.Name = "xTimeline";
-            this.xTimeline.Size = new System.Drawing.Size(916, 300);
+            this.xTimeline.Size = new System.Drawing.Size(1519, 422);
             this.xTimeline.TabIndex = 2;
             // 
             // mediaLibraryControl1
             // 
             this.mediaLibraryControl1.Location = new System.Drawing.Point(934, 12);
             this.mediaLibraryControl1.Name = "mediaLibraryControl1";
-            this.mediaLibraryControl1.Size = new System.Drawing.Size(476, 349);
+            this.mediaLibraryControl1.Size = new System.Drawing.Size(476, 310);
             this.mediaLibraryControl1.TabIndex = 3;
             // 
             // button2
@@ -93,7 +93,7 @@ namespace SpartaRemixStudio2022
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1416, 549);
+            this.ClientSize = new System.Drawing.Size(1543, 770);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.mediaLibraryControl1);
             this.Controls.Add(this.xTimeline);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Audio.OpenAL;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -85,7 +86,7 @@ namespace SpartaRemixStudio2022
                 {
                     SamplesPerPixel = 20;
                 }
-                PanelTracks.Invalidate(true);
+                Invalidate(true);
             }
             // horizontal
             else
@@ -191,7 +192,10 @@ namespace SpartaRemixStudio2022
                         if (more == 0) visibility = int.MaxValue;
                     }
 
-                    timeline.Gridlines.Add(new TimelineGridline((long)offset, visibility, (j % 24 == 0 ? $"{i} {j / 24 % 4}/4" : ""), color, color, color));
+                    string name = "";
+                    if (j % 24 == 0)  name = $"{i}.{j / 24 % 4}";
+                    else if (j % 6 == 0) name = $"-";
+                    timeline.Gridlines.Add(new TimelineGridline((long)offset, visibility, name, color, color, color));
                 }
             }
         }
@@ -201,7 +205,38 @@ namespace SpartaRemixStudio2022
             StartTime = SamplesPerPixel * HScrollTime.Value;
             foreach(TrackControl tc in trackControls)
             {
-                tc.Invalidate(true);
+                Invalidate(true);
+            }
+        }
+
+        private void PanelTracks_SizeChanged(object sender, EventArgs e)
+        {
+            foreach (TrackControl tc in trackControls)
+            {
+                tc.Width = PanelTracks.Width;
+            }
+        }
+
+        // RULER
+        private void PanelRuler_Paint(object sender, PaintEventArgs e)
+        {
+            if (timeline != null)
+            {
+                List<TimelineGridline> visible = new List<TimelineGridline>(timeline.Gridlines);
+                visible.RemoveAll((tg) => (tg.MaxSamplesPerPixel <= SamplesPerPixel * 2));
+
+                for (int i = 0; i < visible.Count; i++)
+                {
+                    TimelineGridline tg = visible[i];
+
+                    if (tg.Position - StartTime >= 0 &&
+                        (tg.Position - StartTime) / SamplesPerPixel <= Width)
+                    {
+                        int px = (int)((tg.Position - StartTime) / SamplesPerPixel);
+                        e.Graphics.DrawLine(Pens.Black, 189 + px, 0, 189 + px, PanelRuler.Height);
+                        e.Graphics.DrawString(tg.Name, new Font("Arial", 9), Brushes.Black, 189 + px, 0);
+                    }
+                }
             }
         }
     }
