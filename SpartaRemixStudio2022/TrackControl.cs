@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static OpenTK.Graphics.OpenGL.GL;
 
 namespace SpartaRemixStudio2022
 {
@@ -27,6 +28,13 @@ namespace SpartaRemixStudio2022
         bool leftStretch = false;
         bool rightStretch = false;
 
+        Media cursorMedia;
+        Media cursorBorder;
+        bool leftBorder;
+        bool rightBorder;
+        int innerTolerance = 10;
+        int outerTolerance = 5;
+
         public void PlaceMediaClickAtPos(int mouseX)
         {
             Media newMedia = mlc.GetMedia();
@@ -39,6 +47,65 @@ namespace SpartaRemixStudio2022
                 t.AddMedia(newMedia);
                 pictureBoxMedia.Invalidate();
             }
+        }
+        private bool UpdateCursorOver(int mouseX)
+        {
+            cursorMedia = null;
+
+            long best = long.MaxValue;
+            Media bestm = null;
+            bool left = false;
+
+            foreach(Media media in t.GetMedia)
+            {
+                long px0 = mouseX - tlc.MediaToCursorPosition(media.Position);
+                long px1 = mouseX - tlc.MediaToCursorPosition(media.Position + media.Length);
+
+                if (-outerTolerance <= px0 && px0 <= innerTolerance)
+                {
+                    long diff = Math.Abs(px0);
+                    if (diff < best)
+                    {
+                        best = diff;
+                        bestm = media;
+                        left = true;
+                    }
+                }
+                if (-innerTolerance <= px1 && px1 <= outerTolerance)
+                {
+                    long diff = Math.Abs(px0);
+                    if (diff < best)
+                    {
+                        best = diff;
+                        bestm = media;
+                        left = false;
+                    }
+                }
+                if (px0 >= 0 && px1 <= 0)
+                {
+                    cursorMedia = media;
+                }
+            }
+
+            bool ret = false;
+
+            if (bestm == null)
+            {
+                if (cursorBorder != null) ret = true;
+                cursorBorder = null;
+                leftBorder = false;
+                rightBorder = false;
+            }
+            else
+            {
+                if (cursorBorder != bestm) ret = true;
+                if (leftBorder != left) ret = true;
+                cursorBorder = bestm;
+                leftBorder = left;
+                rightBorder = !left;
+            }
+
+            return ret;
         }
 
         public TrackControl(TimelineControl tlc, Timeline timeline, Track track)
@@ -93,6 +160,15 @@ namespace SpartaRemixStudio2022
                 }
             }
 
+            if (cursorBorder != null)
+            {
+                long px = cursorBorder.Position;
+                if (rightBorder) px += cursorBorder.Length;
+
+                int px1 = (int)tlc.MediaToCursorPosition(px);
+                e.Graphics.FillRectangle(Brushes.Red, px1 - 1, 0, 3, pictureBoxMedia.Height);
+            }
+
             if (draging && SrsCursor.CarriedObject is Media mm)
             {
                 long pos0 = (dropLocation - tlc.StartTime) / tlc.SamplesPerPixel;
@@ -103,33 +179,27 @@ namespace SpartaRemixStudio2022
         }
         private void pictureBoxMedia_MouseDown(object sender, MouseEventArgs e)
         {
-            Media media = t.ColideMedia(tlc.CursorToMediaPosition(e.X));
-            if (media != null)
+            if (cursorBorder != null)
             {
-                int pixelStart = (int)tlc.MediaToCursorPosition(media.Position);
-                int pixelEnd = (int)tlc.MediaToCursorPosition(media.Position + media.Length);
-                int pixelDown = e.X;
-
-                // TODO: konstanta 10, co s ni jak nastavit
-                if (pixelDown - pixelStart < 10)
+                if (leftBorder)
                 {
                     stretching = true;
                     leftStretch = true;
-                    stretchedMedia = media;
+                    stretchedMedia = cursorBorder;
                 }
-                else if (pixelEnd - pixelDown < 10)
+                else if (rightBorder)
                 {
                     stretching = true;
                     rightStretch = true;
-                    stretchedMedia = media;
+                    stretchedMedia = cursorBorder;
                 }
-                else
-                {
-                    t.RemoveMedia(media);
-                    SrsCursor.CarriedObject = media;
-                    pictureBoxMedia.Invalidate();
-                    DoDragDrop(0, DragDropEffects.Move);
-                }
+            }
+            else if (cursorMedia != null)
+            {
+                t.RemoveMedia(cursorMedia);
+                SrsCursor.CarriedObject = cursorMedia;
+                pictureBoxMedia.Invalidate();
+                DoDragDrop(0, DragDropEffects.Move);
             }
             else
             {
@@ -140,15 +210,21 @@ namespace SpartaRemixStudio2022
         {
             if (rightStretch)
             {
+                // TODO ctrl
                 long ending = tlc.CursorToMediaPosition(e.X);
                 stretchedMedia.Length = ending - stretchedMedia.Position;
                 if (stretchedMedia.Length < 0) stretchedMedia.Length = 0;
                 pictureBoxMedia.Invalidate();
             }
-            if (leftStretch)
+            else if (leftStretch)
             {
                 //TODO: 
                 pictureBoxMedia.Invalidate();
+            }
+            else
+            {
+                bool r = UpdateCursorOver(e.X);
+                if (r) pictureBoxMedia.Invalidate(true);
             }
         }
         private void pictureBoxMedia_MouseUp(object sender, MouseEventArgs e)
@@ -170,6 +246,14 @@ namespace SpartaRemixStudio2022
             rightStretch = false;
             stretching = false;
             pictureBoxMedia.Invalidate();
+        }
+        private void pictureBoxMedia_MouseLeave(object sender, EventArgs e)
+        {
+            cursorMedia = null;
+            cursorBorder = null;
+            leftBorder = false;
+            rightBorder = false;
+            pictureBoxMedia.Invalidate(true);
         }
 
         private void TrackControl_DragOver(object sender, DragEventArgs e)

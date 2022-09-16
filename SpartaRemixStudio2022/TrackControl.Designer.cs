@@ -134,6 +134,7 @@
             this.pictureBoxMedia.DragLeave += new System.EventHandler(this.pictureBoxMedia_DragLeave);
             this.pictureBoxMedia.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBoxMedia_Paint);
             this.pictureBoxMedia.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBoxMedia_MouseDown);
+            this.pictureBoxMedia.MouseLeave += new System.EventHandler(this.pictureBoxMedia_MouseLeave);
             this.pictureBoxMedia.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBoxMedia_MouseMove);
             this.pictureBoxMedia.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBoxMedia_MouseUp);
             // 
