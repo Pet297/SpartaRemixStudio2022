@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -26,6 +27,20 @@ namespace SpartaRemixStudio2022
         bool leftStretch = false;
         bool rightStretch = false;
 
+        public void PlaceMediaClickAtPos(int mouseX)
+        {
+            Media newMedia = mlc.GetMedia();
+            if (newMedia != null)
+            {
+                long pos = tlc.CursorToMediaPosition(mouseX);
+                Tuple<long, long> pos2 = tlc.RoundDownAndNext(pos, 24000); // TODO: Default based on settings
+                newMedia.Position = pos2.Item1;
+                newMedia.Length = pos2.Item2 - pos2.Item1; 
+                t.AddMedia(newMedia);
+                pictureBoxMedia.Invalidate();
+            }
+        }
+
         public TrackControl(TimelineControl tlc, Timeline timeline, Track track)
         {
             InitializeComponent();
@@ -39,8 +54,7 @@ namespace SpartaRemixStudio2022
 
             if (tl != null)
             {
-                List<TimelineGridline> visible = new List<TimelineGridline>(tl.Gridlines);
-                visible.RemoveAll((tg) => (tg.MaxSamplesPerPixel <= tlc.SamplesPerPixel));
+                ReadOnlyCollection<TimelineGridline> visible = tlc.VisibleGridlines;
 
                 if (visible.Count > 0)
                 {
@@ -119,15 +133,7 @@ namespace SpartaRemixStudio2022
             }
             else
             {
-                Media newMedia = mlc.GetMedia();
-                if (newMedia != null)
-                {
-                    long pos = tlc.CursorToMediaPosition(e.X);
-                    newMedia.Position = tlc.RoundPosition(pos);
-                    newMedia.Length = 1000; // TODO: Default based on settings
-                    t.AddMedia(newMedia);
-                    pictureBoxMedia.Invalidate();
-                }
+                PlaceMediaClickAtPos(e.X);
             }
         }
         private void pictureBoxMedia_MouseMove(object sender, MouseEventArgs e)

@@ -1,6 +1,7 @@
 ﻿using OpenTK.Audio.OpenAL;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -33,6 +34,10 @@ namespace SpartaRemixStudio2022
         public int TrackHeight = 100;
         int scrollDelta = 0;
 
+        private List<TimelineGridline> visibleGridlines = new List<TimelineGridline>();
+        private List<TimelineGridline> visibleGridlinesRuler = new List<TimelineGridline>();
+        public ReadOnlyCollection<TimelineGridline> VisibleGridlines => visibleGridlines.AsReadOnly();
+
         // TODO: get set pro posuvnik
         public long MaxTime = 48000L * 600;
 
@@ -45,6 +50,7 @@ namespace SpartaRemixStudio2022
             timeline = t;
 
             int y = 0;
+            UpdateGridlines();
 
             foreach (Track track in timeline.Tracks)
             {
@@ -65,12 +71,14 @@ namespace SpartaRemixStudio2022
             // TODO: get set pro posuvnik
             HScrollTime.Maximum = (int)(MaxTime / SamplesPerPixel);
             HScrollTime.SmallChange = 10;
+
+            Invalidate(true);
         }
         private void PanelTracks_MouseWheel(object sender, MouseEventArgs e)
         {
             scrollDelta += e.Delta;
 
-            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
+            if ((ModifierKeys & Keys.Shift) == Keys.Shift)
             {
                 while (scrollDelta <= -120)
                 {
@@ -86,6 +94,7 @@ namespace SpartaRemixStudio2022
                 {
                     SamplesPerPixel = 20;
                 }
+                UpdateGridlines();
                 Invalidate(true);
             }
             // horizontal
@@ -149,6 +158,27 @@ namespace SpartaRemixStudio2022
             }
             return best;
         }
+        public Tuple<long, long> RoundDownAndNext(long time, long defaultLength)
+        {
+            if (!RoundingMode || VisibleGridlines.Count == 0 || visibleGridlines[0].Position > time) return new Tuple<long, long>(time, time + defaultLength);
+
+            long best = time;
+            long best2 = time + defaultLength;
+            for (int i = 0; i < visibleGridlines.Count; i++)
+            {
+                if (visibleGridlines[i].Position < time)
+                {
+                    best = visibleGridlines[i].Position;
+                    if (i < visibleGridlines.Count - 1)
+                    {
+                        best2 = visibleGridlines[i + 1].Position;
+                    }
+                    else best2 = best + defaultLength;             
+                }
+                else break;
+            }
+            return new Tuple<long, long>(best, best2);
+        }
 
         public void GenerateGridLines(float BPM, long startTime, int beats)
         {
@@ -199,6 +229,14 @@ namespace SpartaRemixStudio2022
                 }
             }
         }
+        void UpdateGridlines()
+        {
+            visibleGridlines = new List<TimelineGridline>(timeline.Gridlines);
+            visibleGridlines.RemoveAll((tg) => (tg.MaxSamplesPerPixel <= SamplesPerPixel));
+
+            visibleGridlinesRuler = new List<TimelineGridline>(timeline.Gridlines);
+            visibleGridlinesRuler.RemoveAll((tg) => (tg.MaxSamplesPerPixel <= SamplesPerPixel * 2));
+        }
 
         private void HScrollTime_Scroll(object sender, ScrollEventArgs e)
         {
@@ -217,17 +255,13 @@ namespace SpartaRemixStudio2022
             }
         }
 
-        // RULER
         private void PanelRuler_Paint(object sender, PaintEventArgs e)
         {
             if (timeline != null)
             {
-                List<TimelineGridline> visible = new List<TimelineGridline>(timeline.Gridlines);
-                visible.RemoveAll((tg) => (tg.MaxSamplesPerPixel <= SamplesPerPixel * 2));
-
-                for (int i = 0; i < visible.Count; i++)
+                for (int i = 0; i < visibleGridlinesRuler.Count; i++)
                 {
-                    TimelineGridline tg = visible[i];
+                    TimelineGridline tg = visibleGridlinesRuler[i];
 
                     if (tg.Position - StartTime >= 0 &&
                         (tg.Position - StartTime) / SamplesPerPixel <= Width)
