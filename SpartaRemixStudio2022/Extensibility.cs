@@ -23,10 +23,16 @@ namespace SpartaRemixStudio2022
             em = new ExtensionManager0();
         }
 
+        public static void Reload()
+        {
+            em = new ExtensionManager0();
+        }
+
         public static ITrackType GetTrackType(Track parent, long id)
         {
             return em.GetTrackType(parent, id);
         }
+        // TODO: Rest-
     }
     class ExtensionManager0
     {

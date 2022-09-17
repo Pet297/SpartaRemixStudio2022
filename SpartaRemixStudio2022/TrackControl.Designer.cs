@@ -36,8 +36,9 @@
             this.buttonAFX = new System.Windows.Forms.Button();
             this.buttonSolo = new System.Windows.Forms.Button();
             this.buttonMute = new System.Windows.Forms.Button();
-            this.pictureBoxMedia = new System.Windows.Forms.Panel();
+            this.PictureBoxMedia = new System.Windows.Forms.PictureBox();
             this.panelSide.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.PictureBoxMedia)).BeginInit();
             this.SuspendLayout();
             // 
             // panelSide
@@ -119,38 +120,37 @@
             this.buttonMute.Text = "M";
             this.buttonMute.UseVisualStyleBackColor = true;
             // 
-            // pictureBoxMedia
+            // PictureBoxMedia
             // 
-            this.pictureBoxMedia.AllowDrop = true;
-            this.pictureBoxMedia.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.pictureBoxMedia.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBoxMedia.Location = new System.Drawing.Point(189, 0);
-            this.pictureBoxMedia.Name = "pictureBoxMedia";
-            this.pictureBoxMedia.Size = new System.Drawing.Size(424, 99);
-            this.pictureBoxMedia.TabIndex = 1;
-            this.pictureBoxMedia.DragDrop += new System.Windows.Forms.DragEventHandler(this.TrackControl_DragDrop);
-            this.pictureBoxMedia.DragEnter += new System.Windows.Forms.DragEventHandler(this.pictureBoxMedia_DragEnter);
-            this.pictureBoxMedia.DragOver += new System.Windows.Forms.DragEventHandler(this.TrackControl_DragOver);
-            this.pictureBoxMedia.DragLeave += new System.EventHandler(this.pictureBoxMedia_DragLeave);
-            this.pictureBoxMedia.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBoxMedia_Paint);
-            this.pictureBoxMedia.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBoxMedia_MouseDown);
-            this.pictureBoxMedia.MouseLeave += new System.EventHandler(this.pictureBoxMedia_MouseLeave);
-            this.pictureBoxMedia.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pictureBoxMedia_MouseMove);
-            this.pictureBoxMedia.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pictureBoxMedia_MouseUp);
+            this.PictureBoxMedia.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.PictureBoxMedia.Location = new System.Drawing.Point(189, 0);
+            this.PictureBoxMedia.Name = "PictureBoxMedia";
+            this.PictureBoxMedia.Size = new System.Drawing.Size(424, 99);
+            this.PictureBoxMedia.TabIndex = 0;
+            this.PictureBoxMedia.TabStop = false;
+            this.PictureBoxMedia.Paint += new System.Windows.Forms.PaintEventHandler(this.PictureBoxMedia_Paint);
+            this.PictureBoxMedia.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PictureBoxMedia_MouseDown);
+            this.PictureBoxMedia.MouseLeave += new System.EventHandler(this.PictureBoxMedia_MouseLeave);
+            this.PictureBoxMedia.MouseMove += new System.Windows.Forms.MouseEventHandler(this.PictureBoxMedia_MouseMove);
+            this.PictureBoxMedia.MouseUp += new System.Windows.Forms.MouseEventHandler(this.PictureBoxMedia_MouseUp);
             // 
             // TrackControl
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.pictureBoxMedia);
+            this.Controls.Add(this.PictureBoxMedia);
             this.Controls.Add(this.panelSide);
+            this.DoubleBuffered = true;
             this.Name = "TrackControl";
             this.Size = new System.Drawing.Size(613, 99);
-            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.TrackControl_DragDrop);
-            this.DragOver += new System.Windows.Forms.DragEventHandler(this.TrackControl_DragOver);
-            this.DragLeave += new System.EventHandler(this.TrackControl_DragLeave);
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.PictureBoxMedia_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.PictureBoxMedia_DragEnter);
+            this.DragOver += new System.Windows.Forms.DragEventHandler(this.PictureBoxMedia_DragOver);
+            this.DragLeave += new System.EventHandler(this.PictureBoxMedia_DragLeave);
             this.panelSide.ResumeLayout(false);
             this.panelSide.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.PictureBoxMedia)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -165,6 +165,6 @@
         private System.Windows.Forms.Button buttonSolo;
         private System.Windows.Forms.Button buttonMute;
         private System.Windows.Forms.Label labelName;
-        private System.Windows.Forms.Panel pictureBoxMedia;
+        private System.Windows.Forms.PictureBox PictureBoxMedia;
     }
 }

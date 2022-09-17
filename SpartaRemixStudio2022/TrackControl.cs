@@ -45,7 +45,7 @@ namespace SpartaRemixStudio2022
                 newMedia.Position = pos2.Item1;
                 newMedia.Length = pos2.Item2 - pos2.Item1; 
                 t.AddMedia(newMedia);
-                pictureBoxMedia.Invalidate();
+                PictureBoxMedia.Invalidate();
             }
         }
         private bool UpdateCursorOver(int mouseX)
@@ -114,10 +114,12 @@ namespace SpartaRemixStudio2022
             t = track;
             tl = timeline;
             this.tlc = tlc;
+
+
         }
-        private void pictureBoxMedia_Paint(object sender, PaintEventArgs e)
+        private void PictureBoxMedia_Paint(object sender, PaintEventArgs e)
         {
-            e.Graphics.FillRectangle(Brushes.Black, 0, 0, pictureBoxMedia.Width, pictureBoxMedia.Height); ;
+            e.Graphics.FillRectangle(Brushes.Black, 0, 0, PictureBoxMedia.Width, PictureBoxMedia.Height); ;
 
             if (tl != null)
             {
@@ -134,13 +136,13 @@ namespace SpartaRemixStudio2022
                     TimelineGridline tg1 = visible[i + 1];
 
                     if (tg1.Position - tlc.StartTime > 0 &&
-                        (tg0.Position - tlc.StartTime) / tlc.SamplesPerPixel < pictureBoxMedia.Width)
+                        (tg0.Position - tlc.StartTime) / tlc.SamplesPerPixel < PictureBoxMedia.Width)
                     {
                         int px0 = (int)((tg0.Position - tlc.StartTime) / tlc.SamplesPerPixel);
                         int px1 = (int)((tg1.Position - tlc.StartTime) / tlc.SamplesPerPixel) - 1;
                         using (SolidBrush sb = new SolidBrush(Color.FromArgb(tg0.R, tg0.G, tg0.B)))
                         {
-                            e.Graphics.FillRectangle(sb, px0, 0, px1 - px0, pictureBoxMedia.Height - 1);
+                            e.Graphics.FillRectangle(sb, px0, 0, px1 - px0, PictureBoxMedia.Height - 1);
                         }
                     }
                 }
@@ -151,16 +153,16 @@ namespace SpartaRemixStudio2022
                 long pos0 = (m.Position - tlc.StartTime) / tlc.SamplesPerPixel;
                 long pos1 = (m.Position + m.Length - tlc.StartTime) / tlc.SamplesPerPixel;
 
-                if (pos0 < pictureBoxMedia.Width && pos1 > 0)
+                if (pos0 < PictureBoxMedia.Width && pos1 > 0)
                 {
                     int clamp0 = (int)Math.Max(0, pos0);
-                    int clamp1 = (int)Math.Min(pictureBoxMedia.Width, pos1);
+                    int clamp1 = (int)Math.Min(PictureBoxMedia.Width, pos1);
 
                     NameColor nc = m.GetNameColor();
                     using (SolidBrush sb = new SolidBrush(Color.FromArgb(nc.R, nc.G, nc.B)))
                     {
-                        e.Graphics.FillRectangle(Brushes.Black, clamp0, 0, clamp1 - clamp0 - 1, pictureBoxMedia.Height - 1);
-                        e.Graphics.FillRectangle(sb, clamp0 + 1, 1, clamp1 - clamp0 - 3, pictureBoxMedia.Height - 3);
+                        e.Graphics.FillRectangle(Brushes.Black, clamp0, 0, clamp1 - clamp0 - 1, PictureBoxMedia.Height - 1);
+                        e.Graphics.FillRectangle(sb, clamp0 + 1, 1, clamp1 - clamp0 - 3, PictureBoxMedia.Height - 3);
                         e.Graphics.DrawString(nc.Name,new Font("Arial", 9),Brushes.White,clamp0 + 1, 1); //TODO: Contrasting color
                     }
                 }
@@ -172,7 +174,7 @@ namespace SpartaRemixStudio2022
                 if (rightBorder) px += cursorBorder.Length;
 
                 int px1 = (int)tlc.MediaToCursorPosition(px);
-                e.Graphics.FillRectangle(Brushes.Red, px1 - 1, 0, 3, pictureBoxMedia.Height);
+                e.Graphics.FillRectangle(Brushes.Red, px1 - 1, 0, 3, PictureBoxMedia.Height);
             }
 
             if (draging && SrsCursor.CarriedObject is Media mm)
@@ -180,10 +182,10 @@ namespace SpartaRemixStudio2022
                 long pos0 = (dropLocation - tlc.StartTime) / tlc.SamplesPerPixel;
                 long pos1 = (dropLocation + mm.Length - tlc.StartTime) / tlc.SamplesPerPixel;
                 // TODO nice media look
-                e.Graphics.FillRectangle(Brushes.Black, pos0, 0, pos1 - pos0, pictureBoxMedia.Height);
+                e.Graphics.FillRectangle(Brushes.Black, pos0, 0, pos1 - pos0, PictureBoxMedia.Height);
             }
         }
-        private void pictureBoxMedia_MouseDown(object sender, MouseEventArgs e)
+        private void PictureBoxMedia_MouseDown(object sender, MouseEventArgs e)
         {
             if (cursorBorder != null)
             {
@@ -204,7 +206,7 @@ namespace SpartaRemixStudio2022
             {
                 t.RemoveMedia(cursorMedia);
                 SrsCursor.CarriedObject = cursorMedia;
-                pictureBoxMedia.Invalidate();
+                PictureBoxMedia.Invalidate();
                 DoDragDrop(0, DragDropEffects.Move);
             }
             else
@@ -212,7 +214,7 @@ namespace SpartaRemixStudio2022
                 PlaceMediaClickAtPos(e.X);
             }
         }
-        private void pictureBoxMedia_MouseMove(object sender, MouseEventArgs e)
+        private void PictureBoxMedia_MouseMove(object sender, MouseEventArgs e)
         {
             if (rightStretch)
             {
@@ -220,20 +222,20 @@ namespace SpartaRemixStudio2022
                 long ending = tlc.CursorToMediaPosition(e.X);
                 stretchedMedia.Length = ending - stretchedMedia.Position;
                 if (stretchedMedia.Length < 0) stretchedMedia.Length = 0;
-                pictureBoxMedia.Invalidate();
+                PictureBoxMedia.Invalidate();
             }
             else if (leftStretch)
             {
                 //TODO: 
-                pictureBoxMedia.Invalidate();
+                PictureBoxMedia.Invalidate();
             }
             else
             {
                 bool r = UpdateCursorOver(e.X);
-                if (r) pictureBoxMedia.Invalidate(true);
+                if (r) PictureBoxMedia.Invalidate(true);
             }
         }
-        private void pictureBoxMedia_MouseUp(object sender, MouseEventArgs e)
+        private void PictureBoxMedia_MouseUp(object sender, MouseEventArgs e)
         {
             // Snap to gridlines
             if (stretching)
@@ -251,52 +253,47 @@ namespace SpartaRemixStudio2022
             leftStretch = false;
             rightStretch = false;
             stretching = false;
-            pictureBoxMedia.Invalidate();
+            PictureBoxMedia.Invalidate();
         }
-        private void pictureBoxMedia_MouseLeave(object sender, EventArgs e)
+        private void PictureBoxMedia_MouseLeave(object sender, EventArgs e)
         {
             cursorMedia = null;
             cursorBorder = null;
             leftBorder = false;
             rightBorder = false;
-            pictureBoxMedia.Invalidate(true);
+            PictureBoxMedia.Invalidate(true);
         }
 
-        private void TrackControl_DragOver(object sender, DragEventArgs e)
+        private void PictureBoxMedia_DragOver(object sender, DragEventArgs e)
         {
             if (SrsCursor.CarriedObject is Media media)
             {
                 e.Effect = DragDropEffects.Move;
-                dropLocation = tlc.CursorToMediaPosition(pictureBoxMedia.PointToClient(MousePosition).X);
+                dropLocation = tlc.CursorToMediaPosition(PictureBoxMedia.PointToClient(MousePosition).X);
                 draging = true;
-                pictureBoxMedia.Invalidate();
+                PictureBoxMedia.Invalidate();
             }
         }
-        private void TrackControl_DragDrop(object sender, DragEventArgs e)
+        private void PictureBoxMedia_DragDrop(object sender, DragEventArgs e)
         {
             if (SrsCursor.CarriedObject is Media media)
             {
                 draging = false;
-                long time = tlc.CursorToMediaPosition(pictureBoxMedia.PointToClient(MousePosition).X);
+                long time = tlc.CursorToMediaPosition(PictureBoxMedia.PointToClient(MousePosition).X);
                 media.Position = tlc.RoundPosition(time);
                 t.AddMedia(media);
                 SrsCursor.CarriedObject = null;
-                pictureBoxMedia.Invalidate();
+                PictureBoxMedia.Invalidate();
             }
         }
-        private void pictureBoxMedia_DragEnter(object sender, DragEventArgs e)
+        private void PictureBoxMedia_DragEnter(object sender, DragEventArgs e)
         {
             e.Effect = DragDropEffects.Move;
         }
-        private void TrackControl_DragLeave(object sender, EventArgs e)
+        private void PictureBoxMedia_DragLeave(object sender, EventArgs e)
         {
             draging = false;
-            pictureBoxMedia.Invalidate();
-        }
-        private void pictureBoxMedia_DragLeave(object sender, EventArgs e)
-        {
-            draging = false;
-            pictureBoxMedia.Invalidate();
+            PictureBoxMedia.Invalidate();
         }
     }
 }
