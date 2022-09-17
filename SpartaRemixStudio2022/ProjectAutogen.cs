@@ -181,6 +181,7 @@ namespace SpartaRemixStudio2022
     partial class AVSample : IComplexObject
     {
         public int Index { get; private set; }
+        public NameColor NameColor { get; set; }
         public long AudioId { get; private set; }
         public IAudioSample AudioSample { get; private set; }
         public long VideoId { get; private set; }
@@ -191,6 +192,7 @@ namespace SpartaRemixStudio2022
             switch (id)
             {
                 case 0x100: Index = StreamHelper.LoadUnmanaged<int>(s); return true;
+                case 0x101: NameColor = UniLoad.CreateObject<NameColor>(s); return true;
                 case 0x1000: AudioId = StreamHelper.LoadUnmanaged<long>(s); return true;
                 case 0x2000: AudioSample = /*TODO*/null; AudioSample.SetDefaultState(); AudioSample.LoadObject(s); return true;
                 case 0x1001: VideoId = StreamHelper.LoadUnmanaged<long>(s); return true;
@@ -201,6 +203,7 @@ namespace SpartaRemixStudio2022
         public void SetDefaultState()
         {
             Index = 0;
+            NameColor = new NameColor();
             AudioId = 0;
             AudioSample = null;
             VideoId = 0;
@@ -211,6 +214,7 @@ namespace SpartaRemixStudio2022
             switch (id)
             {
                 case 0x100: StreamHelper.SaveUnmanaged<int>(s, Index); break;
+                case 0x101: UniLoad.Save(s, NameColor); break;
                 case 0x1000: StreamHelper.SaveUnmanaged<long>(s, AudioId); break;
                 case 0x2000: UniLoad.Save(s, AudioSample); break;
                 case 0x1001: StreamHelper.SaveUnmanaged<long>(s, VideoId); break;
@@ -222,6 +226,7 @@ namespace SpartaRemixStudio2022
             switch (id)
             {
                 case 0x100: return StreamHelper.GetUnmanagedLenght<int>(Index);
+                case 0x101: return UniLoad.GetLenght(NameColor);
                 case 0x1000: return StreamHelper.GetUnmanagedLenght<long>(AudioId);
                 case 0x2000: return UniLoad.GetLenght(AudioSample);
                 case 0x1001: return StreamHelper.GetUnmanagedLenght<long>(VideoId);
@@ -231,9 +236,65 @@ namespace SpartaRemixStudio2022
         }
         public List<uint> GetVarNamesToSave()
         {
-            return new List<uint>() { 0x100, 0x1000, 0x2000, 0x1001, 0x2001 };
+            return new List<uint>() { 0x100, 0x101, 0x1000, 0x2000, 0x1001, 0x2001 };
         }
         public AVSample()
+        {
+            SetDefaultState();
+        }
+    }
+
+    partial class NameColor : IComplexObject
+    {
+        public string Name { get; set; }
+        public byte R { get; set; }
+        public byte G { get; set; }
+        public byte B { get; set; }
+
+        public bool AcceptVariable(uint id, Stream s, int lenght)
+        {
+            switch (id)
+            {
+                case 0x100: Name = StreamHelper.LoadString(s); return true;
+                case 0x200: R = StreamHelper.LoadUnmanaged<byte>(s); return true;
+                case 0x201: G = StreamHelper.LoadUnmanaged<byte>(s); return true;
+                case 0x202: B = StreamHelper.LoadUnmanaged<byte>(s); return true;
+                default: return false;
+            }
+        }
+        public void SetDefaultState()
+        {
+            Name = "";
+            R = 0;
+            G = 0;
+            B = 0;
+        }
+        public void SaveVariable(uint id, Stream s)
+        {
+            switch (id)
+            {
+                case 0x100: StreamHelper.SaveString(s, Name); break;
+                case 0x200: StreamHelper.SaveUnmanaged<byte>(s, R); break;
+                case 0x201: StreamHelper.SaveUnmanaged<byte>(s, G); break;
+                case 0x202: StreamHelper.SaveUnmanaged<byte>(s, B); break;
+            }
+        }
+        public int ReportLenghtOfVariable(uint id)
+        {
+            switch (id)
+            {
+                case 0x100: return StreamHelper.GetLenght(Name);
+                case 0x200: return StreamHelper.GetUnmanagedLenght<byte>(R);
+                case 0x201: return StreamHelper.GetUnmanagedLenght<byte>(G);
+                case 0x202: return StreamHelper.GetUnmanagedLenght<byte>(B);
+                default: return 0;
+            }
+        }
+        public List<uint> GetVarNamesToSave()
+        {
+            return new List<uint>() { 0x100, 0x200, 0x201, 0x202 };
+        }
+        public NameColor()
         {
             SetDefaultState();
         }
@@ -797,4 +858,7 @@ namespace SpartaRemixStudio2022
             SetDefaultState();
         }
     }
+
+
+
 }

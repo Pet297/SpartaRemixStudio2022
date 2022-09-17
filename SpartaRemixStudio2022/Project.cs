@@ -29,7 +29,7 @@ namespace SpartaRemixStudio2022
         public IEnumerable<VideoSource> GetSources => Sources.Values;
         public void AddSample(IAudioSample audio, IVideoSample video)
         {
-            Samples.Add(NextSampleIndex, new AVSample(audio, video, NextSampleIndex));
+            Samples.Add(NextSampleIndex, new AVSample(audio, video, NextSampleIndex) { NameColor = new NameColor() { R = 36, G = 72, B = 0, Name = $"Sample {NextSampleIndex}"} });
 
             EventHandler handler = SampleAdded;
             handler?.Invoke(this, new EventArgs());
@@ -178,6 +178,16 @@ namespace SpartaRemixStudio2022
             else VideoId = 0;
             Index = index;
         }
+
+        public override string ToString()
+        {
+            return NameColor.Name;
+        }
+    }
+
+    public partial class NameColor
+    {
+
     }
 
     public partial class Timeline
@@ -275,6 +285,11 @@ namespace SpartaRemixStudio2022
         {
             ExtType = mt;
             //TODO: factory ID
+        }
+
+        public NameColor GetNameColor()
+        {
+            return ExtType.GetNameColor();
         }
     }
 

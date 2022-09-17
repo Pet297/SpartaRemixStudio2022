@@ -137,6 +137,8 @@ namespace SpartaRemixStudio2022
         IAudioSampleReader GetAudioReader(long position);
         IVideoSampleReader GetVideoReader(long position);
 
+        NameColor GetNameColor();
+
         void Init(Project p);
     }
     public interface ITrackAudioReader

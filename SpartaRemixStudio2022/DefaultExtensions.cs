@@ -355,6 +355,7 @@ namespace SpartaRemixStudio2022
 
         public IAudioSample RepresentedAudio { get; private set; }
         public IVideoSample RepresentedVideo { get; private set; }
+        NameColor SampleName = new NameColor();
 
         public void Init(Project p)
         {
@@ -363,6 +364,7 @@ namespace SpartaRemixStudio2022
             {
                 RepresentedAudio = avs.AudioSample;
                 RepresentedVideo = avs.VideoSample;
+                SampleName = avs.NameColor;
             }
         }
 
@@ -375,11 +377,21 @@ namespace SpartaRemixStudio2022
             return RepresentedVideo?.GetReader(position / 48000f, 1, 1, 1, 0, 0);
         }
 
+        public NameColor GetNameColor()
+        {
+            return new NameColor()
+            {
+                Name = $"[{sampleID}] {SampleName.Name}",
+                R = SampleName.R,
+                G = SampleName.G,
+                B = SampleName.B
+            };
+        }
+
         public bool AcceptVariable(uint id, Stream s, int lenght)
         {
             throw new NotImplementedException();
-        }
-        
+        }    
         public List<uint> GetVarNamesToSave()
         {
             throw new NotImplementedException();

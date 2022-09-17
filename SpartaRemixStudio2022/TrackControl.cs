@@ -155,8 +155,14 @@ namespace SpartaRemixStudio2022
                 {
                     int clamp0 = (int)Math.Max(0, pos0);
                     int clamp1 = (int)Math.Min(pictureBoxMedia.Width, pos1);
-                    // TODO nice media look
-                    e.Graphics.FillRectangle(Brushes.Orange, clamp0, 0, clamp1 - clamp0, pictureBoxMedia.Height);
+
+                    NameColor nc = m.GetNameColor();
+                    using (SolidBrush sb = new SolidBrush(Color.FromArgb(nc.R, nc.G, nc.B)))
+                    {
+                        e.Graphics.FillRectangle(Brushes.Black, clamp0, 0, clamp1 - clamp0 - 1, pictureBoxMedia.Height - 1);
+                        e.Graphics.FillRectangle(sb, clamp0 + 1, 1, clamp1 - clamp0 - 3, pictureBoxMedia.Height - 3);
+                        e.Graphics.DrawString(nc.Name,new Font("Arial", 9),Brushes.White,clamp0 + 1, 1); //TODO: Contrasting color
+                    }
                 }
             }
 
