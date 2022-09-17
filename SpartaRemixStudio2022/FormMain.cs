@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ namespace SpartaRemixStudio2022
     public partial class FormMain : Form
     {
         Project p = new Project();
+        string lastSaveFilename;
 
         CMDVideoReader cvr;
         public FormMain()
@@ -28,21 +30,35 @@ namespace SpartaRemixStudio2022
             // DEBUG
             p.timeline.Tracks.Add(new Track());
             p.timeline.Tracks[0].SetType(new RegularTrackFactory().CreateNewInstance(p.timeline.Tracks[0]));
-            p.timeline.Tracks.Add(new Track());
-            p.timeline.Tracks.Add(new Track());
-            p.timeline.Tracks.Add(new Track());
-            p.timeline.Tracks.Add(new Track());
             TimelineControl tlc = new TimelineControl(p.timeline);
             tlc.GenerateGridLines(140, 0, 100);
-            tlc.Mlc = mediaLibraryControl1;
 
+            tlc.Mlc = mediaLibraryControl1;
+            tlc.Parent = xTimeline;
+            tlc.Dock = DockStyle.Fill;
+        }
+        public FormMain(string pathToProject)
+        {
+            InitializeComponent();
+
+            FileStream fs = new FileStream(pathToProject, FileMode.Open);
+            p = UniLoad.CreateObject<Project>(fs);
+            fs.Close();
+            fs.Dispose();
+            lastSaveFilename = pathToProject;
+            button3.Enabled = true;
+
+            // TODO: Not public
+            mediaLibraryControl1.p = p;
+
+            TimelineControl tlc = new TimelineControl(p.timeline);
+            tlc.Mlc = mediaLibraryControl1;
             tlc.Parent = xTimeline;
             tlc.Dock = DockStyle.Fill;
         }
 
         // DEBUG
         private int tex;
-        private string src = @"D:\Media\LPS - ultra 666\lps-g5-s1-e14.mp4";
         private void glControl1_Paint(object sender, PaintEventArgs e)
         {
             GL.Enable(EnableCap.Texture2D);
@@ -80,24 +96,17 @@ namespace SpartaRemixStudio2022
             FfmpegInfo.LookForFFMPEG();
 
             tex = GL.GenTexture();
-            cvr = new CMDVideoReader();
-            cvr.OpenFile(src, 0, 320, 180);
-
             GL.BindTexture(TextureTarget.Texture2D, tex);
-
-            //MessageBox.Show($"{VideoInfo.IsAudioFile(@"")}{VideoInfo.IsAudioFile(src)}{VideoInfo.IsAudioFile(@"D:\Media\a.wav")}{VideoInfo.IsAudioFile(@"D:\Media\a0.png")}{VideoInfo.IsAudioFile(@"D:\Media\Aduburyus (Almost) Complete Sparta Base Collection (Tribute #2) [360p].mp4")}|{VideoInfo.IsAudioFile(@"D:\Media\crazy_dancin.gif")}");
-            //MessageBox.Show($"{VideoInfo.IsVideoFile(@"")}{VideoInfo.IsVideoFile(src)}{VideoInfo.IsVideoFile(@"D:\Media\a.wav")}{VideoInfo.IsVideoFile(@"D:\Media\a0.png")}{VideoInfo.IsVideoFile(@"D:\Media\Aduburyus (Almost) Complete Sparta Base Collection (Tribute #2) [360p].mp4")}|{VideoInfo.IsVideoFile(@"D:\Media\crazy_dancin.gif")}");
-            //MessageBox.Show($"{VideoInfo.IsImageFile(@"")}{VideoInfo.IsImageFile(src)}{VideoInfo.IsImageFile(@"D:\Media\a.wav")}{VideoInfo.IsImageFile(@"D:\Media\a0.png")}{VideoInfo.IsImageFile(@"D:\Media\Aduburyus (Almost) Complete Sparta Base Collection (Tribute #2) [360p].mp4")}|{VideoInfo.IsImageFile(@"D:\Media\crazy_dancin.gif")}");
         }
 
         Stopwatch sw = new Stopwatch();
         private void timer1_Tick(object sender, EventArgs e)
         {
             //cvr.ReadTimeAbsolute((float)sw.Elapsed.TotalSeconds);
-            GL.BindTexture(TextureTarget.Texture2D, tex);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, cvr.Width, cvr.Height, 0, PixelFormat.Bgr, PixelType.UnsignedByte, cvr.Buffer);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Nearest);
+            //GL.BindTexture(TextureTarget.Texture2D, tex);
+            //GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, cvr.Width, cvr.Height, 0, PixelFormat.Bgr, PixelType.UnsignedByte, cvr.Buffer);
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Nearest);
+            //GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Nearest);
 
             glControl1.Invalidate();
         }
@@ -127,6 +136,23 @@ namespace SpartaRemixStudio2022
                 wo.Dispose();
                 wo = null;
             }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            UniLoad.Save(lastSaveFilename, p);
+        }
+
+        private void saveFileDialog1_FileOk(object sender, CancelEventArgs e)
+        {
+            UniLoad.Save(saveFileDialog1.FileName, p);
+            lastSaveFilename = saveFileDialog1.FileName;
+            button3.Enabled = true;
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            saveFileDialog1.ShowDialog();
         }
     }
 }

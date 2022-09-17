@@ -45,9 +45,6 @@ namespace SpartaRemixStudio2022
         public int SampleRate = 48000;
 
         // Other Media
-
-        // Extenstions
-        public ExtensionManager extensions = new ExtensionManager();
     }
     public partial class VideoSource
     {
@@ -251,8 +248,8 @@ namespace SpartaRemixStudio2022
 
         public void SetType(ITrackType trackType)
         {
-            // TODO: Factory ID
             ExtType = trackType;
+            ExtId = trackType.FactoryID;
         }
 
         public Media ColideMedia(long cursor)

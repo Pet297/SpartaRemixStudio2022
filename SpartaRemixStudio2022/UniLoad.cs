@@ -7,6 +7,7 @@ using System.IO;
 
 namespace SpartaRemixStudio2022
 {
+
     public static class UniLoad
     {
         public static void LoadObject(this IComplexObject ico, Stream s)
@@ -126,49 +127,89 @@ namespace SpartaRemixStudio2022
         }
         public static void SaveString(Stream s, string input)
         {
-            byte[] b = Encoding.UTF32.GetBytes(input);
-            SaveUnmanaged(s, b.Length);
-            s.Write(b, 0, b.Length);
+            if (input == null)
+            {
+                s.WriteByte(0);
+            }
+            else
+            {
+                s.WriteByte(1);
+                byte[] b = Encoding.UTF32.GetBytes(input);
+                SaveUnmanaged(s, b.Length);
+                s.Write(b, 0, b.Length);
+            }
         }
         public static void SaveArray<T>(Stream s, T[] arr, Action<Stream, T> ElementSave)
         {
-            StreamHelper.SaveUnmanaged(s, arr.Length);
-
-            for (int i = 0; i < arr.Length; i++)
+            if (arr == null)
             {
-                ElementSave(s, arr[i]);
+                s.WriteByte(0);
+            }
+            else
+            {
+                s.WriteByte(1);
+                StreamHelper.SaveUnmanaged(s, arr.Length);
+
+                for (int i = 0; i < arr.Length; i++)
+                {
+                    ElementSave(s, arr[i]);
+                }
             }
         }
         public static void SaveArray2<T>(Stream s, T[,] arr, Action<Stream, T> ElementSave)
         {
-            StreamHelper.SaveUnmanaged(s, arr.GetLength(0));
-            StreamHelper.SaveUnmanaged(s, arr.GetLength(1));
-
-            for (int i = 0; i < arr.GetLength(0); i++)
+            if (arr == null)
             {
-                for (int j = 0; j < arr.GetLength(1); j++)
+                s.WriteByte(0);
+            }
+            else
+            {
+                s.WriteByte(1);
+                StreamHelper.SaveUnmanaged(s, arr.GetLength(0));
+                StreamHelper.SaveUnmanaged(s, arr.GetLength(1));
+
+                for (int i = 0; i < arr.GetLength(0); i++)
                 {
-                    ElementSave(s, arr[i, j]);
+                    for (int j = 0; j < arr.GetLength(1); j++)
+                    {
+                        ElementSave(s, arr[i, j]);
+                    }
                 }
             }
         }
         public static void SaveList<T>(Stream s, List<T> arr, Action<Stream, T> ElementSave)
         {
-            StreamHelper.SaveUnmanaged(s, arr.Count);
-
-            for (int i = 0; i < arr.Count; i++)
+            if (arr == null)
             {
-                ElementSave(s, arr[i]);
+                s.WriteByte(0);
+            }
+            else
+            {
+                s.WriteByte(1);
+                StreamHelper.SaveUnmanaged(s, arr.Count);
+
+                for (int i = 0; i < arr.Count; i++)
+                {
+                    ElementSave(s, arr[i]);
+                }
             }
         }
         public static void SaveDictionary<T, U>(Stream s, Dictionary<T, U> dict, Action<Stream, T> KeySave, Action<Stream, U> ValueSave)
         {
-            StreamHelper.SaveUnmanaged(s, dict.Count);
-
-            foreach (KeyValuePair<T, U> kp in dict)
+            if (dict == null)
             {
-                KeySave(s, kp.Key);
-                ValueSave(s, kp.Value);
+                s.WriteByte(0);
+            }
+            else
+            {
+                s.WriteByte(1);
+                StreamHelper.SaveUnmanaged(s, dict.Count);
+
+                foreach (KeyValuePair<T, U> kp in dict)
+                {
+                    KeySave(s, kp.Key);
+                    ValueSave(s, kp.Value);
+                }
             }
         }
 
@@ -188,6 +229,9 @@ namespace SpartaRemixStudio2022
         }
         public static string LoadString(Stream fs)
         {
+            int x = fs.ReadByte();
+            if (x <= 0) return null;
+
             int l = LoadUnmanaged<int>(fs);
             byte[] b = new byte[l];
             fs.Read(b, 0, l);
@@ -196,6 +240,9 @@ namespace SpartaRemixStudio2022
         }
         public static T[] LoadArray<T>(Stream s, Func<Stream, T> ElementLoad)
         {
+            int b = s.ReadByte();
+            if (b <= 0) return null;
+
             int l = StreamHelper.LoadUnmanaged<int>(s);
 
             T[] arr = new T[l];
@@ -209,6 +256,9 @@ namespace SpartaRemixStudio2022
         }
         public static T[,] LoadArray2<T>(Stream s, Func<Stream, T> ElementLoad)
         {
+            int b = s.ReadByte();
+            if (b <= 0) return null;
+
             int l1 = StreamHelper.LoadUnmanaged<int>(s);
             int l2 = StreamHelper.LoadUnmanaged<int>(s);
 
@@ -226,6 +276,9 @@ namespace SpartaRemixStudio2022
         }
         public static List<T> LoadList<T>(Stream s, Func<Stream, T> ElementLoad)
         {
+            int b = s.ReadByte();
+            if (b <= 0) return null;
+
             int l = StreamHelper.LoadUnmanaged<int>(s);
 
             List<T> arr = new List<T>();
@@ -239,6 +292,9 @@ namespace SpartaRemixStudio2022
         }
         public static Dictionary<T, U> LoadDictionary<T, U>(Stream s, Func<Stream, T> KeyLoad, Func<Stream, U> ValueLoad)
         {
+            int b = s.ReadByte();
+            if (b <= 0) return null;
+
             int l = StreamHelper.LoadUnmanaged<int>(s);
             Dictionary<T, U> dict = new Dictionary<T, U>();
 
@@ -252,78 +308,129 @@ namespace SpartaRemixStudio2022
 
         public static Tuple<T1> LoadTuple<T1>(Stream s, Func<Stream, T1> ElementLoad1)
         {
+            int x = s.ReadByte();
+            if (x <= 0) return null;
+
             return new Tuple<T1>(ElementLoad1(s));
         }
         public static void SaveTuple<T1>(Stream s, Tuple<T1> t, Action<Stream, T1> ElementSave1)
         {
-            ElementSave1(s, t.Item1);
+            if (t == null)
+            {
+                s.WriteByte(0);
+            }
+            else
+            {
+                s.WriteByte(1);
+                ElementSave1(s, t.Item1);
+            }
         }
         public static Tuple<T1, T2> LoadTuple<T1, T2>(Stream s, Func<Stream, T1> ElementLoad1, Func<Stream, T2> ElementLoad2)
         {
+            int x = s.ReadByte();
+            if (x <= 0) return null;
+
             return new Tuple<T1, T2>(ElementLoad1(s), ElementLoad2(s));
         }
         public static void SaveTuple<T1, T2>(Stream s, Tuple<T1, T2> t, Action<Stream, T1> ElementSave1, Action<Stream, T2> ElementSave2)
         {
-            ElementSave1(s, t.Item1);
-            ElementSave2(s, t.Item2);
+            if (t == null)
+            {
+                s.WriteByte(0);
+            }
+            else
+            {
+                ElementSave1(s, t.Item1);
+                ElementSave2(s, t.Item2);
+            }
         }
         public static Tuple<T1, T2, T3> LoadTuple<T1, T2, T3>(Stream s, Func<Stream, T1> ElementLoad1, Func<Stream, T2> ElementLoad2, Func<Stream, T3> ElementLoad3)
         {
+            int x = s.ReadByte();
+            if (x <= 0) return null;
+
             return new Tuple<T1, T2, T3>(ElementLoad1(s), ElementLoad2(s), ElementLoad3(s));
         }
         public static void SaveTuple<T1, T2, T3>(Stream s, Tuple<T1, T2, T3> t, Action<Stream, T1> ElementSave1, Action<Stream, T2> ElementSave2, Action<Stream, T3> ElementSave3)
         {
-            ElementSave1(s, t.Item1);
-            ElementSave2(s, t.Item2);
-            ElementSave3(s, t.Item3);
+            if (t == null)
+            {
+                s.WriteByte(0);
+            }
+            else
+            {
+                ElementSave1(s, t.Item1);
+                ElementSave2(s, t.Item2);
+                ElementSave3(s, t.Item3);
+            }
         }
         public static Tuple<T1, T2, T3, T4> LoadTuple<T1, T2, T3, T4>(Stream s, Func<Stream, T1> ElementLoad1, Func<Stream, T2> ElementLoad2, Func<Stream, T3> ElementLoad3, Func<Stream, T4> ElementLoad4)
         {
+            int x = s.ReadByte();
+            if (x <= 0) return null;
+
             return new Tuple<T1, T2, T3, T4>(ElementLoad1(s), ElementLoad2(s), ElementLoad3(s), ElementLoad4(s));
         }
         public static void SaveTuple<T1, T2, T3, T4>(Stream s, Tuple<T1, T2, T3, T4> t, Action<Stream, T1> ElementSave1, Action<Stream, T2> ElementSave2, Action<Stream, T3> ElementSave3, Action<Stream, T4> ElementSave4)
         {
-            ElementSave1(s, t.Item1);
-            ElementSave2(s, t.Item2);
-            ElementSave3(s, t.Item3);
-            ElementSave4(s, t.Item4);
+            if (t == null)
+            {
+                s.WriteByte(0);
+            }
+            else
+            {
+                ElementSave1(s, t.Item1);
+                ElementSave2(s, t.Item2);
+                ElementSave3(s, t.Item3);
+                ElementSave4(s, t.Item4);
+            }
         }
         public static Tuple<T1, T2, T3, T4, T5> LoadTuple<T1, T2, T3, T4, T5>(Stream s, Func<Stream, T1> ElementLoad1, Func<Stream, T2> ElementLoad2, Func<Stream, T3> ElementLoad3, Func<Stream, T4> ElementLoad4, Func<Stream, T5> ElementLoad5)
         {
+            int x = s.ReadByte();
+            if (x <= 0) return null;
+
             return new Tuple<T1, T2, T3, T4, T5>(ElementLoad1(s), ElementLoad2(s), ElementLoad3(s), ElementLoad4(s), ElementLoad5(s));
         }
         public static void SaveTuple<T1, T2, T3, T4, T5>(Stream s, Tuple<T1, T2, T3, T4, T5> t, Action<Stream, T1> ElementSave1, Action<Stream, T2> ElementSave2, Action<Stream, T3> ElementSave3, Action<Stream, T4> ElementSave4, Action<Stream, T5> ElementSave5)
         {
-            ElementSave1(s, t.Item1);
-            ElementSave2(s, t.Item2);
-            ElementSave3(s, t.Item3);
-            ElementSave4(s, t.Item4);
-            ElementSave5(s, t.Item5);
+            if (t == null)
+            {
+                s.WriteByte(0);
+            }
+            else
+            {
+                ElementSave1(s, t.Item1);
+                ElementSave2(s, t.Item2);
+                ElementSave3(s, t.Item3);
+                ElementSave4(s, t.Item4);
+                ElementSave5(s, t.Item5);
+            }
         }
         public static int GetLenght<T>(Tuple<T> a, Func<T, int> l)
         {
-            if (a == null) return 0;
-            else return l(a.Item1);
+            if (a == null) return 1;
+            else return 1 + l(a.Item1);
         }
         public static int GetLenght<T, T2>(Tuple<T, T2> a, Func<T, int> l, Func<T2, int> l2)
         {
-            if (a == null) return 0;
-            else return l(a.Item1) + l2(a.Item2);
+            if (a == null) return 1;
+            else return 1 + l(a.Item1) + l2(a.Item2);
         }
         public static int GetLenght<T, T2, T3>(Tuple<T, T2, T3> a, Func<T, int> l, Func<T2, int> l2, Func<T3, int> l3)
         {
-            if (a == null) return 0;
-            else return l(a.Item1) + l2(a.Item2) + l3(a.Item3);
+            if (a == null) return 1;
+            else return 1 + l(a.Item1) + l2(a.Item2) + l3(a.Item3);
         }
         public static int GetLenght<T, T2, T3, T4>(Tuple<T, T2, T3, T4> a, Func<T, int> l, Func<T2, int> l2, Func<T3, int> l3, Func<T4, int> l4)
         {
-            if (a == null) return 0;
-            else return l(a.Item1) + l2(a.Item2) + l3(a.Item3) + l4(a.Item4);
+            if (a == null) return 1;
+            else return 1 + l(a.Item1) + l2(a.Item2) + l3(a.Item3) + l4(a.Item4);
         }
         public static int GetLenght<T, T2, T3, T4, T5>(Tuple<T, T2, T3, T4, T5> a, Func<T, int> l, Func<T2, int> l2, Func<T3, int> l3, Func<T4, int> l4, Func<T5, int> l5)
         {
-            if (a == null) return 0;
-            else return l(a.Item1) + l2(a.Item2) + l3(a.Item3) + l4(a.Item4) + l5(a.Item5);
+            if (a == null) return 1;
+            else return 1 + l(a.Item1) + l2(a.Item2) + l3(a.Item3) + l4(a.Item4) + l5(a.Item5);
         }
 
         public unsafe static int GetUnmanagedLenght<T>(T o) where T : unmanaged
@@ -331,10 +438,11 @@ namespace SpartaRemixStudio2022
             int size = sizeof(T);
             return size;
         }
-        public static int GetLenght(string o) => 4 + 4 * o.Length;
+        public static int GetLenght(string o) => o == null ? 1 : 1 + 4 + 4 * o.Length;
         public static int GetLenght<T>(T[] a, Func<T, int> l)
         {
-            int c = 4;
+            if (a == null) return 1;
+            int c = 1 + 4;
             for (int i = 0; i < a.Length; i++)
             {
                 c += l(a[i]);
@@ -343,7 +451,8 @@ namespace SpartaRemixStudio2022
         }
         public static int GetLenght<T>(T[,] a, Func<T, int> l)
         {
-            int c = 8;
+            if (a == null) return 1;
+            int c = 1 + 8;
             for (int i = 0; i < a.GetLength(0); i++)
             {
                 for (int j = 0; j < a.GetLength(1); j++)
@@ -355,7 +464,8 @@ namespace SpartaRemixStudio2022
         }
         public static int GetLenght<T>(List<T> a, Func<T, int> l)
         {
-            int c = 4;
+            if (a == null) return 1;
+            int c = 1 + 4;
             foreach (T b in a)
             {
                 c += l(b);
@@ -364,7 +474,8 @@ namespace SpartaRemixStudio2022
         }
         public static int GetLenght<T, U>(Dictionary<T, U> a, Func<T, int> lt, Func<U, int> lu)
         {
-            int c = 4;
+            if (a == null) return 1;
+            int c = 1 + 4;
             foreach (KeyValuePair<T, U> b in a)
             {
                 c += lt(b.Key);

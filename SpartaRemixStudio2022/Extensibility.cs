@@ -15,7 +15,20 @@ namespace SpartaRemixStudio2022
         string Author { get; }
         string Description { get; }
     }
-    public class ExtensionManager
+    public static class ExtensionManager
+    {
+        static ExtensionManager0 em;
+        static ExtensionManager()
+        {
+            em = new ExtensionManager0();
+        }
+
+        public static ITrackType GetTrackType(Track parent, long id)
+        {
+            return em.GetTrackType(parent, id);
+        }
+    }
+    class ExtensionManager0
     {
         private CompositionContainer container;
         [ImportMany] public IEnumerable<Lazy<ITrackFactory, ISRSExtensionData>> TrackTypes;
@@ -28,7 +41,7 @@ namespace SpartaRemixStudio2022
         [ImportMany] public IEnumerable<Lazy<IAudioSample, ISRSExtensionData>> VideoSampleTypes;
         [ImportMany] public IEnumerable<Lazy<IGeneralScript, ISRSExtensionData>> GeneralScripts;
 
-        public ExtensionManager()
+        public ExtensionManager0()
         {
             if (!Directory.Exists(@"extensions"))
             {
@@ -47,6 +60,15 @@ namespace SpartaRemixStudio2022
             {
                 Console.WriteLine(compositionException.ToString());
             }
+        }
+
+        public ITrackType GetTrackType(Track parent, long id)
+        {
+            foreach (Lazy<ITrackFactory, ISRSExtensionData> factory in TrackTypes)
+            {
+                if (factory.Metadata.ID == id) return factory.Value.CreateNewInstance(parent);
+            }
+            return null;
         }
     }
 
@@ -119,6 +141,8 @@ namespace SpartaRemixStudio2022
     }
     public interface ITrackType : IComplexObject
     {
+        long FactoryID { get; }
+
         bool HasVideo { get; }
         bool HasAudio { get; }
         bool HasVideoEffects { get; }

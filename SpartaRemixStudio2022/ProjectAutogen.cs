@@ -534,7 +534,7 @@ namespace SpartaRemixStudio2022
                 case 0x201: Children = StreamHelper.LoadList<Track>(s, (ss) => { return UniLoad.CreateObject<Track>(ss); }); return true;
                 case 0x300: Name = StreamHelper.LoadString(s); return true;
                 case 0x1000: ExtId = StreamHelper.LoadUnmanaged<long>(s); return true;
-                case 0x2000: ExtType = /*TODO*/null; ExtType.SetDefaultState(); ExtType.LoadObject(s); return true;
+                case 0x2000: ExtType = ExtensionManager.GetTrackType(this, ExtId); ExtType.SetDefaultState(); ExtType.LoadObject(s); return true;
                 default: return false;
             }
         }

@@ -38,6 +38,7 @@ namespace SpartaRemixStudio2022
         {
             return new RegularTrackVideoReader(parent, time);
         }
+        public long FactoryID => 8531611222441738669L;
 
         public RegularTrack(Track parent)
         {
@@ -251,6 +252,9 @@ namespace SpartaRemixStudio2022
             DefaultPitch = 0;
             DefaultSpeed = 1;
             DefaultVolume = 1;
+            SourceFile = "";
+            SourceIndex = -1;
+            SourceTime = 0;
 
             if (Audio == null) Audio = new float[0];
         }
@@ -341,12 +345,11 @@ namespace SpartaRemixStudio2022
         }
     }
 
-    class SampleMedia : IMediaType
+    partial class SampleMedia : IMediaType
     {
-        readonly int sampleID;
         public SampleMedia(int sampleID)
         {
-            this.sampleID = sampleID;
+            this.SampleID = sampleID;
         }
 
         //TODO: fix
@@ -359,7 +362,7 @@ namespace SpartaRemixStudio2022
 
         public void Init(Project p)
         {
-            AVSample avs = p.GetSampleByID(sampleID);
+            AVSample avs = p.GetSampleByID(SampleID);
             if (avs != null)
             {
                 RepresentedAudio = avs.AudioSample;
@@ -381,32 +384,11 @@ namespace SpartaRemixStudio2022
         {
             return new NameColor()
             {
-                Name = $"[{sampleID}] {SampleName.Name}",
+                Name = $"[{SampleID}] {SampleName.Name}",
                 R = SampleName.R,
                 G = SampleName.G,
                 B = SampleName.B
             };
-        }
-
-        public bool AcceptVariable(uint id, Stream s, int lenght)
-        {
-            throw new NotImplementedException();
-        }    
-        public List<uint> GetVarNamesToSave()
-        {
-            throw new NotImplementedException();
-        }
-        public int ReportLenghtOfVariable(uint id)
-        {
-            throw new NotImplementedException();
-        }
-        public void SaveVariable(uint id, Stream s)
-        {
-            throw new NotImplementedException();
-        }
-        public void SetDefaultState()
-        {
-            throw new NotImplementedException();
         }
     }
 

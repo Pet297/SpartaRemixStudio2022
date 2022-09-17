@@ -175,6 +175,44 @@ namespace SpartaRemixStudio2022
         }
     }
 
+    partial class SampleMedia : IComplexObject
+    {
+        public int SampleID { get; private set; }
 
-
+        public bool AcceptVariable(uint id, Stream s, int lenght)
+        {
+            switch (id)
+            {
+                case 0x100: SampleID = StreamHelper.LoadUnmanaged<int>(s); return true;
+                default: return false;
+            }
+        }
+        public void SetDefaultState()
+        {
+            SampleID = 0;
+        }
+        public void SaveVariable(uint id, Stream s)
+        {
+            switch (id)
+            {
+                case 0x100: StreamHelper.SaveUnmanaged<int>(s, SampleID); break;
+            }
+        }
+        public int ReportLenghtOfVariable(uint id)
+        {
+            switch (id)
+            {
+                case 0x100: return StreamHelper.GetUnmanagedLenght<int>(SampleID);
+                default: return 0;
+            }
+        }
+        public List<uint> GetVarNamesToSave()
+        {
+            return new List<uint>() { 0x100 };
+        }
+        public SampleMedia()
+        {
+            SetDefaultState();
+        }
+    }
 }
