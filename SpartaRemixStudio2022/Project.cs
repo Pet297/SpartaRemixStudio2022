@@ -44,7 +44,16 @@ namespace SpartaRemixStudio2022
         // Settings
         public int SampleRate = 48000;
 
-        // Other Media
+        public void DoPostLoadActions()
+        {
+            foreach (Track t in timeline.Tracks)
+            {
+                foreach (Media m in t.GetMedia)
+                {
+                    m.ExtType.Init(this);
+                }
+            }    
+        }
     }
     public partial class VideoSource
     {
@@ -281,7 +290,7 @@ namespace SpartaRemixStudio2022
         public Media(IMediaType mt)
         {
             ExtType = mt;
-            //TODO: factory ID
+            ExtId = mt.FactoryID;
         }
 
         public NameColor GetNameColor()

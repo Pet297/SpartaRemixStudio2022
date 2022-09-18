@@ -194,9 +194,9 @@ namespace SpartaRemixStudio2022
                 case 0x100: Index = StreamHelper.LoadUnmanaged<int>(s); return true;
                 case 0x101: NameColor = UniLoad.CreateObject<NameColor>(s); return true;
                 case 0x1000: AudioId = StreamHelper.LoadUnmanaged<long>(s); return true;
-                case 0x2000: AudioSample = /*TODO*/null; AudioSample.SetDefaultState(); AudioSample.LoadObject(s); return true;
+                case 0x2000: AudioSample = ExtensionManager.GetAudioSample(AudioId); AudioSample.SetDefaultState(); AudioSample.LoadObject(s); return true;
                 case 0x1001: VideoId = StreamHelper.LoadUnmanaged<long>(s); return true;
-                case 0x2001: VideoSample = /*TODO*/null; VideoSample.SetDefaultState(); VideoSample.LoadObject(s); return true;
+                case 0x2001: VideoSample = ExtensionManager.GetVideoSample(VideoId); VideoSample.SetDefaultState(); VideoSample.LoadObject(s); return true;
                 default: return false;
             }
         }
@@ -619,7 +619,7 @@ namespace SpartaRemixStudio2022
                 case 0x301: ModY = StreamHelper.LoadUnmanaged<double>(s); return true;
                 case 0x400: Index = StreamHelper.LoadUnmanaged<uint>(s); return true;
                 case 0x1000: ExtId = StreamHelper.LoadUnmanaged<long>(s); return true;
-                case 0x2000: ExtType = /*TODO*/null; ExtType.SetDefaultState(); ExtType.LoadObject(s); return true;
+                case 0x2000: ExtType = ExtensionManager.GetMediaType(ExtId); ExtType.SetDefaultState(); ExtType.LoadObject(s); return true;
                 default: return false;
             }
         }

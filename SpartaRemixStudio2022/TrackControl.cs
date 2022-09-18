@@ -114,8 +114,6 @@ namespace SpartaRemixStudio2022
             t = track;
             tl = timeline;
             this.tlc = tlc;
-
-
         }
         private void PictureBoxMedia_Paint(object sender, PaintEventArgs e)
         {

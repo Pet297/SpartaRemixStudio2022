@@ -45,6 +45,7 @@ namespace SpartaRemixStudio2022
             p = UniLoad.CreateObject<Project>(fs);
             fs.Close();
             fs.Dispose();
+            p.DoPostLoadActions();
             lastSaveFilename = pathToProject;
             button3.Enabled = true;
 

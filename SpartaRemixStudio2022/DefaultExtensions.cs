@@ -180,11 +180,18 @@ namespace SpartaRemixStudio2022
     }
 
     // video cut
-    [Export(typeof(IVideoSample))]
+    [Export(typeof(IVideoSampleFactory))]
     [ExportMetadata("ID", 2063460045581655728L)]
     [ExportMetadata("Name", "Video cut")]
     [ExportMetadata("Author", "SRS-default")]
     [ExportMetadata("Description", "Default video sample type.\nIt contains preloaded frames to bypass the need to read video by reusing frames.")]
+    public class VideoCutFactory : IVideoSampleFactory
+    {
+        public IVideoSample CreateNewInstance()
+        {
+            return new VideoCutSample();
+        }
+    }
     partial class VideoCutSample : IVideoSample
     {
         public long FactoryID { get; } = 2063460045581655728L;
@@ -235,11 +242,18 @@ namespace SpartaRemixStudio2022
     }
 
     // audio cut
-    [Export(typeof(IAudioSample))]
+    [Export(typeof(IAudioSampleFactory))]
     [ExportMetadata("ID", 7735279469303714768L)]
     [ExportMetadata("Name", "Audio cut")]
     [ExportMetadata("Author", "SRS-default")]
     [ExportMetadata("Description", "Default audio sample type.\nIt contains a preloaded section of audio and can be pitch-shifted or stretched.")]
+    public class AudioCutFactory : IAudioSampleFactory
+    {
+        public IAudioSample CreateNewInstance()
+        {
+            return new AudioCutSample();
+        }
+    }
     partial class AudioCutSample : IAudioSample
     {
         public long FactoryID { get; } = 7735279469303714768L;
@@ -311,7 +325,7 @@ namespace SpartaRemixStudio2022
     }
 
     [Export(typeof(ISampleDefiner))]
-    [ExportMetadata("ID", 7735279469303714768L)]
+    [ExportMetadata("ID", 5425465847949823003L)]
     [ExportMetadata("Name", "Define cut sample")]
     [ExportMetadata("Author", "SRS-default")]
     [ExportMetadata("Description", "Default function, that given start and end position in a source, defines a sample that can be shifted using general pitch technique and that has its frames preloaded.")]
@@ -345,6 +359,18 @@ namespace SpartaRemixStudio2022
         }
     }
 
+    [Export(typeof(IMediaFactory))]
+    [ExportMetadata("ID", 2362406499821388653L)]
+    [ExportMetadata("Name", "Sample Media")]
+    [ExportMetadata("Author", "SRS-default")]
+    [ExportMetadata("Description", "Represent an earlier defined sample placed on a timeline track.")]
+    public class SampleMediaFactory : IMediaFactory
+    {
+        public IMediaType CreateNewInstance()
+        {
+            return new SampleMedia();
+        }
+    }
     partial class SampleMedia : IMediaType
     {
         public SampleMedia(int sampleID)
@@ -355,9 +381,12 @@ namespace SpartaRemixStudio2022
         //TODO: fix
         public bool HasVideo => true;
         public bool HasAudio => true;
+        public long FactoryID => 2362406499821388653L;
 
         public IAudioSample RepresentedAudio { get; private set; }
         public IVideoSample RepresentedVideo { get; private set; }
+
+
         NameColor SampleName = new NameColor();
 
         public void Init(Project p)

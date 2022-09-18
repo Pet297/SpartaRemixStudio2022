@@ -5,6 +5,7 @@ using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace SpartaRemixStudio2022
 {
@@ -28,10 +29,10 @@ namespace SpartaRemixStudio2022
             em = new ExtensionManager0();
         }
 
-        public static ITrackType GetTrackType(Track parent, long id)
-        {
-            return em.GetTrackType(parent, id);
-        }
+        public static ITrackType GetTrackType(Track parent, long id) => em.GetTrackType(parent, id);
+        public static IAudioSample GetAudioSample(long id) => em.GetAudioSample(id);
+        public static IVideoSample GetVideoSample(long id) => em.GetVideoSample(id);
+        public static IMediaType GetMediaType(long id) => em.GetMediaType(id);
         // TODO: Rest-
     }
     class ExtensionManager0
@@ -43,6 +44,9 @@ namespace SpartaRemixStudio2022
         [ImportMany] public IEnumerable<Lazy<ITrackScript, ISRSExtensionData>> TrackScripts;
         [ImportMany] public IEnumerable<Lazy<IMediaScript, ISRSExtensionData>> MediaScripts;
         [ImportMany] public IEnumerable<Lazy<ISampleDefiner, ISRSExtensionData>> SampleDefiners;
+        [ImportMany] public IEnumerable<Lazy<IAudioSampleFactory, ISRSExtensionData>> AudioSampleFactories;
+        [ImportMany] public IEnumerable<Lazy<IVideoSampleFactory, ISRSExtensionData>> VideoSampleFactories;
+        [ImportMany] public IEnumerable<Lazy<IMediaFactory, ISRSExtensionData>> MediaFactories;
         [ImportMany] public IEnumerable<Lazy<IVideoSample, ISRSExtensionData>> AudioSampleTypes;
         [ImportMany] public IEnumerable<Lazy<IAudioSample, ISRSExtensionData>> VideoSampleTypes;
         [ImportMany] public IEnumerable<Lazy<IGeneralScript, ISRSExtensionData>> GeneralScripts;
@@ -76,6 +80,30 @@ namespace SpartaRemixStudio2022
             }
             return null;
         }
+        public IAudioSample GetAudioSample(long id)
+        {
+            foreach (Lazy<IAudioSampleFactory, ISRSExtensionData> factory in AudioSampleFactories)
+            {
+                if (factory.Metadata.ID == id) return factory.Value.CreateNewInstance();
+            }
+            return null;
+        }
+        public IVideoSample GetVideoSample(long id)
+        {
+            foreach (Lazy<IVideoSampleFactory, ISRSExtensionData> factory in VideoSampleFactories)
+            {
+                if (factory.Metadata.ID == id) return factory.Value.CreateNewInstance();
+            }
+            return null;
+        }
+        public IMediaType GetMediaType(long id)
+        {
+            foreach (Lazy<IMediaFactory, ISRSExtensionData> factory in MediaFactories)
+            {
+                if (factory.Metadata.ID == id) return factory.Value.CreateNewInstance();
+            }
+            return null;
+        }
     }
 
     // scripting
@@ -100,6 +128,10 @@ namespace SpartaRemixStudio2022
     }
 
     // sampling
+    public interface IAudioSampleFactory
+    {
+        IAudioSample CreateNewInstance();
+    }
     public interface IAudioSample : IComplexObject
     {
         long FactoryID { get; }
@@ -109,6 +141,10 @@ namespace SpartaRemixStudio2022
     {
         float ReadOne(double position, double pitch, double speed, double formant, double modx, double mody);
         void ReadMore(float[] buffer, int count, double position, double pitch, double speed, double formant, double modx, double mody);
+    }
+    public interface IVideoSampleFactory
+    {
+        IVideoSample CreateNewInstance();
     }
     public interface IVideoSample : IComplexObject
     {
@@ -157,10 +193,24 @@ namespace SpartaRemixStudio2022
         ITrackAudioReader GetAudio(long time);
         ITrackVideoReader GetVideo(long time);
     }
+    public interface ITrackAudioReader
+    {
+        void Read(float[] buffer, int count, long position);
+    }
+    public interface ITrackVideoReader
+    {
+        TextureInfo Read(long position);
+    }
+    public interface IMediaFactory
+    {
+        IMediaType CreateNewInstance();
+    }
     public interface IMediaType : IComplexObject
     {
         bool HasVideo { get; }
         bool HasAudio { get; }
+
+        long FactoryID { get; }
 
         IAudioSample RepresentedAudio { get; }
         IVideoSample RepresentedVideo { get; }
@@ -170,14 +220,6 @@ namespace SpartaRemixStudio2022
         NameColor GetNameColor();
 
         void Init(Project p);
-    }
-    public interface ITrackAudioReader
-    {
-        void Read(float[] buffer, int count, long position);
-    }
-    public interface ITrackVideoReader
-    {
-        TextureInfo Read(long position);
     }
 
     // media
