@@ -22,7 +22,7 @@ namespace SpartaRemixStudio2022
         public static void LookForFFMPEG()
         {
             Found = true;
-
+            //TODO: Warn about FFMPEG
             if (File.Exists("ffmpeg.txt"))
             {
                 string text = File.ReadAllText("ffmpeg.txt");
@@ -95,7 +95,14 @@ namespace SpartaRemixStudio2022
             StreamReader stream = process.StandardOutput;
             string ret = stream.ReadLine();
             stream.Close();
-            process.Kill();
+            try
+            {
+                process.Kill();
+            }
+            catch
+            {
+
+            }
 
             return ret;
         }

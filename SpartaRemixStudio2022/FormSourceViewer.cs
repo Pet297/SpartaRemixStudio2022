@@ -161,7 +161,7 @@ namespace SpartaRemixStudio2022
         {
             // TODO: not null, use definer
             AudioCutSample acs = new AudioCutSample(2, 48000, GetCut());
-            VideoCutSample vcs = new VideoCutSample(current, MouseToAudiopos(redRegionStart) / 48000f, 15);
+            VideoCutSample vcs = new VideoCutSample(current, redRegionStart, 15);
             p.AddSample(acs, vcs);
         }
     }

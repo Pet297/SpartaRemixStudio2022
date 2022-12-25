@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace SpartaRemixStudio2022
 {
@@ -40,6 +41,7 @@ namespace SpartaRemixStudio2022
         public IEnumerable<AVSample> GetSamples => Samples.Values;
 
         public AVSample GetSampleByID(int id) => Samples.ContainsKey(id) ? Samples[id] : null;
+        public VideoSource GetSourceByID(int id) => Sources.ContainsKey(id) ? Sources[id] : null;
 
         // Settings
         public int SampleRate = 48000;
@@ -52,14 +54,22 @@ namespace SpartaRemixStudio2022
                 {
                     m.ExtType.Init(this);
                 }
-            }    
+            }
+            foreach (AVSample avs in GetSamples)
+            {
+                avs.VideoSample?.Init(this);
+            }
+            foreach (VideoSource vs in GetSources)
+            {
+                vs.Init(this);
+            }
         }
     }
     public partial class VideoSource
     {
         // Derived values
-        public readonly bool hasAudio;
-        public readonly bool hasVideo;
+        public bool hasAudio { get; private set; }
+        public bool hasVideo { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
         public int Fpsn { get; private set; }
@@ -111,6 +121,13 @@ namespace SpartaRemixStudio2022
             }
         }
 
+        public void Init(Project p)
+        {
+            hasAudio = VideoInfo.IsAudioFile(File);
+            hasVideo = VideoInfo.IsVideoFile(File);
+            GetVideoInfo();
+        }
+
         public List<int> GetFrames(double timeSec, int frameCount)
         {
             CMDVideoReader cmdv = new CMDVideoReader();
@@ -118,13 +135,15 @@ namespace SpartaRemixStudio2022
 
 
             int[] frames = new int[frameCount];
-            GL.CreateTextures(TextureTarget.Texture2D, 1, frames);
+            GL.CreateTextures(TextureTarget.Texture2D, frameCount, frames);
 
             for (int i = 0; i < frameCount; i++)
             {
                 cmdv.Read();
                 GL.BindTexture(TextureTarget.Texture2D, frames[i]);
                 GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, Width, Height, 0, PixelFormat.Bgr, PixelType.UnsignedByte, cmdv.Buffer);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Nearest);
+                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Nearest);
             }
 
             return frames.ToList();

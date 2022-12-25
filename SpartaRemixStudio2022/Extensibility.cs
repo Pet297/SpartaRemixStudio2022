@@ -5,10 +5,11 @@ using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 
 namespace SpartaRemixStudio2022
 {
+    //TODO: More Init
+
     public interface ISRSExtensionData
     {
         long ID { get; }
@@ -150,6 +151,8 @@ namespace SpartaRemixStudio2022
     {
         long FactoryID { get; }
         IVideoSampleReader GetReader(double position, double pitch, double speed, double formant, double modx, double mody);
+
+        void Init(Project p);
     }
     public interface IVideoSampleReader
     {

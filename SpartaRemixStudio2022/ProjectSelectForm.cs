@@ -16,6 +16,7 @@ namespace SpartaRemixStudio2022
         public ProjectSelectForm()
         {
             InitializeComponent();
+            FfmpegInfo.LookForFFMPEG();
         }
 
         private void ProjectSelectForm_Load(object sender, EventArgs e)

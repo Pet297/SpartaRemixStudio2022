@@ -85,7 +85,7 @@ namespace SpartaRemixStudio2022
         }
         void CheckCurrentMediaStoped(long currentPos)
         {
-            if (currentMedia.Position + currentMedia.Length < currentPos)
+            if (currentMedia != null && currentMedia.Position + currentMedia.Length < currentPos)
             {
                 currentMedia = null;
                 currentReader = null;
@@ -97,7 +97,7 @@ namespace SpartaRemixStudio2022
         {
             CheckForNewMedia(position);
             CheckCurrentMediaStoped(position);
-            if (currentReader != null) return currentReader.ReadOne(position - (float)currentMedia.StartTime, currentMedia.Pitch, currentMedia.Speed, currentMedia.Formant, currentMedia.ModX, currentMedia.ModY);
+            if (currentReader != null) return currentReader.ReadOne(position - (float)currentMedia.Position, currentMedia.Pitch, currentMedia.Speed, currentMedia.Formant, currentMedia.ModX, currentMedia.ModY);
             else return TextureInfo.None;
         }
     }
@@ -196,10 +196,10 @@ namespace SpartaRemixStudio2022
     {
         public long FactoryID { get; } = 2063460045581655728L;
 
-        readonly int width;
-        readonly int height;
-        readonly int fpsN;
-        readonly int fpsD;
+        int width;
+        int height;
+        int fpsN;
+        int fpsD;
 
         List<int> OpenGLFrames = new List<int>();
         public VideoCutSample(VideoSource vs, double sourceTimeSec, int framesToPreload)
@@ -215,15 +215,26 @@ namespace SpartaRemixStudio2022
             fpsD = vs.Fpsd;
         }
 
+        public void Init(Project p)
+        {
+            VideoSource vs = p.GetSourceByID(SourceIndex);
+            vs.Init(p); // TODO inited flag
+            OpenGLFrames = vs.GetFrames(SourceTime, 7); //TODO Dynamic
+            width = vs.Width;
+            height = vs.Height;
+            fpsN = vs.Fpsn;
+            fpsD = vs.Fpsd;
+        }
+
         public IVideoSampleReader GetReader(double position, double pitch, double speed, double formant, double modx, double mody)
         {
-            throw new NotImplementedException();
+            return new VideoCutReader(this);
         }
 
         public TextureInfo GetFrameAt(double timeSec)
         {
-            int frameNumber = (int)(timeSec * fpsN / fpsD);
-            frameNumber = Math.Min(OpenGLFrames.Count, Math.Max(0, frameNumber));
+            int frameNumber = (int)(timeSec / 48000f * fpsN / fpsD);
+            frameNumber = Math.Min(OpenGLFrames.Count - 1, Math.Max(0, frameNumber));
             return new TextureInfo() { RelativeHeight = height, RelativeWidth = width, TextureIndex = OpenGLFrames[frameNumber], Transformation = Matrix4.Identity };
         }
     }

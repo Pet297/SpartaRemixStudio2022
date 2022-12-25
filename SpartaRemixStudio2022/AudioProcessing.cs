@@ -12,6 +12,7 @@ namespace SpartaRemixStudio2022
         public WaveFormat WaveFormat => WaveFormat.CreateIeeeFloatWaveFormat(48000, 2);
         ITrackAudioReader reader = null;
         long currentPosition = 0;
+        public long CurrentPosition => currentPosition;
 
         public TrackReaderISP(Track t, long position)
         {
