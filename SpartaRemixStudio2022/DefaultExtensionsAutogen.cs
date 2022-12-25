@@ -9,33 +9,43 @@ namespace SpartaRemixStudio2022
 {
     partial class RegularTrack : IComplexObject
     {
+        public int ChildMode { get; set; }
+        public int BlendMode { get; set; }
 
         public bool AcceptVariable(uint id, Stream s, int lenght)
         {
             switch (id)
             {
+                case 0x100: ChildMode = StreamHelper.LoadUnmanaged<int>(s); return true;
+                case 0x101: BlendMode = StreamHelper.LoadUnmanaged<int>(s); return true;
                 default: return false;
             }
         }
         public void SetDefaultState()
         {
+            ChildMode = 0;
+            BlendMode = 0;
         }
         public void SaveVariable(uint id, Stream s)
         {
             switch (id)
             {
+                case 0x100: StreamHelper.SaveUnmanaged<int>(s, ChildMode); break;
+                case 0x101: StreamHelper.SaveUnmanaged<int>(s, BlendMode); break;
             }
         }
         public int ReportLenghtOfVariable(uint id)
         {
             switch (id)
             {
+                case 0x100: return StreamHelper.GetUnmanagedLenght<int>(ChildMode);
+                case 0x101: return StreamHelper.GetUnmanagedLenght<int>(BlendMode);
                 default: return 0;
             }
         }
         public List<uint> GetVarNamesToSave()
         {
-            return new List<uint>() { };
+            return new List<uint>() { 0x100, 0x101 };
         }
         public RegularTrack()
         {
@@ -215,4 +225,51 @@ namespace SpartaRemixStudio2022
             SetDefaultState();
         }
     }
+
+    partial class PatternMedia : IComplexObject
+    {
+        public int PatternID { get; private set; }
+        public int PatternTrack { get; private set; }
+
+        public bool AcceptVariable(uint id, Stream s, int lenght)
+        {
+            switch (id)
+            {
+                case 0x100: PatternID = StreamHelper.LoadUnmanaged<int>(s); return true;
+                case 0x101: PatternTrack = StreamHelper.LoadUnmanaged<int>(s); return true;
+                default: return false;
+            }
+        }
+        public void SetDefaultState()
+        {
+            PatternID = 0;
+            PatternTrack = 0;
+        }
+        public void SaveVariable(uint id, Stream s)
+        {
+            switch (id)
+            {
+                case 0x100: StreamHelper.SaveUnmanaged<int>(s, PatternID); break;
+                case 0x101: StreamHelper.SaveUnmanaged<int>(s, PatternTrack); break;
+            }
+        }
+        public int ReportLenghtOfVariable(uint id)
+        {
+            switch (id)
+            {
+                case 0x100: return StreamHelper.GetUnmanagedLenght<int>(PatternID);
+                case 0x101: return StreamHelper.GetUnmanagedLenght<int>(PatternTrack);
+                default: return 0;
+            }
+        }
+        public List<uint> GetVarNamesToSave()
+        {
+            return new List<uint>() { 0x100, 0x101 };
+        }
+        public PatternMedia()
+        {
+            SetDefaultState();
+        }
+    }
+
 }

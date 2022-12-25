@@ -1,15 +1,9 @@
-﻿using NAudio.MediaFoundation;
-using NAudio.Wave;
+﻿using NAudio.Wave;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Net.WebRequestMethods;
 
 namespace SpartaRemixStudio2022
 {
@@ -26,8 +20,6 @@ namespace SpartaRemixStudio2022
 
             NextSourceIndex++;
         }
-        public event EventHandler SourceAdded;
-        public IEnumerable<VideoSource> GetSources => Sources.Values;
         public void AddSample(IAudioSample audio, IVideoSample video)
         {
             Samples.Add(NextSampleIndex, new AVSample(audio, video, NextSampleIndex) { NameColor = new NameColor() { R = 36, G = 72, B = 0, Name = $"Sample {NextSampleIndex}"} });
@@ -37,11 +29,16 @@ namespace SpartaRemixStudio2022
 
             NextSampleIndex++;
         }
+        public event EventHandler SourceAdded;
+        public IEnumerable<VideoSource> GetSources => Sources.Values;
         public event EventHandler SampleAdded;
         public IEnumerable<AVSample> GetSamples => Samples.Values;
+        public event EventHandler PatternAdded;
+        public IEnumerable<Pattern> GetPatterns => Patterns.Values;
 
         public AVSample GetSampleByID(int id) => Samples.ContainsKey(id) ? Samples[id] : null;
         public VideoSource GetSourceByID(int id) => Sources.ContainsKey(id) ? Sources[id] : null;
+        public Pattern GetPatternByID(int id) => Patterns.ContainsKey(id) ? Patterns[id] : null;
 
         // Settings
         public int SampleRate = 48000;
@@ -54,6 +51,7 @@ namespace SpartaRemixStudio2022
                 {
                     m.ExtType.Init(this);
                 }
+                t.Init(this);
             }
             foreach (AVSample avs in GetSamples)
             {
@@ -258,11 +256,20 @@ namespace SpartaRemixStudio2022
             return newMedia;
         }
         public Tuple<Media, int> BeginAt(long timeStamp) => CheckForNewMediaFast(-1, timeStamp);
+
+        public IEnumerable<Media> EnumerateMedia()
+        {
+            foreach (Media m in TrackMedia) yield return m;
+        }
     }
 
     public partial class Track
     {
-        public void SortMedia() => TrackMedia.Sort((a, b) => { return a.Position.CompareTo(b.Position); });
+        public void SortMedia()
+        {
+            TrackMedia.Sort((a, b) => { return a.Position.CompareTo(b.Position); });
+            trackMediaInterpreted.Sort((a, b) => { return a.Position.CompareTo(b.Position); });
+        }
         public void AddMedia(Media m)
         {
             TrackMedia.Add(m);
@@ -295,14 +302,61 @@ namespace SpartaRemixStudio2022
         public Tuple<Media, int> CheckForNewMediaFast(int currentIndex, long newTimeStamp)
         {
             Tuple<Media, int> newMedia = new Tuple<Media, int>(null, currentIndex);
-            while (currentIndex + 1 < TrackMedia.Count && TrackMedia[currentIndex + 1].Position <= newTimeStamp)
+            while (currentIndex + 1 < trackMediaInterpreted.Count && trackMediaInterpreted[currentIndex + 1].Position <= newTimeStamp)
             {
-                newMedia = new Tuple<Media, int>(TrackMedia[currentIndex + 1], currentIndex + 1);
+                newMedia = new Tuple<Media, int>(trackMediaInterpreted[currentIndex + 1], currentIndex + 1);
                 currentIndex++;
             }
             return newMedia;
         }
         public Tuple<Media, int> BeginAt(long timeStamp) => CheckForNewMediaFast(-1, timeStamp);
+
+        private readonly List<Media> trackMediaInterpreted = new List<Media>();
+        private void Reinterpret()
+        {
+            trackMediaInterpreted.Clear();
+            foreach (Media m in TrackMedia)
+            {
+                if (m.ExtType is PatternMedia pm)
+                {
+                    Pattern pat = p.GetPatternByID(pm.PatternID);
+                    if (pat != null && pm.PatternTrack >= 0 && pm.PatternTrack < pat.Tracks.Count)
+                    {
+                        SimpleTrack st = new SimpleTrack();
+                        foreach (Media m2 in st.EnumerateMedia())
+                        {
+                            Media n = new Media(m.ExtType);
+
+                            if (!(n.ExtType is PatternMedia))
+                            {
+                                // TODO: Examine the math and be more precise about stretching.
+                                n.Formant = m2.Formant + m.Formant;
+                                n.Index = m2.Index;
+                                n.Length = (long)(m2.Length / m.Speed);
+                                n.ModX = m2.ModX;
+                                n.ModY = m2.ModY;
+                                n.Opacity = m2.Opacity * m.Opacity;
+                                n.Pan = m2.Pan + m.Pan;
+                                n.Pitch = m2.Pitch + m.Pitch;
+                                n.Position = m2.Position;
+                                n.Speed = m2.Speed * m.Speed;
+                                n.StartTime = m.StartTime + m.StartTime * m.Speed;
+
+                                trackMediaInterpreted.Add(n);
+                            }
+                        }
+                    }
+                }
+                else trackMediaInterpreted.Add(m);
+            }
+        }
+
+        Project p;
+        public void Init(Project p)
+        {
+            this.p = p;
+            Reinterpret();
+        }
     }
     public partial class Media
     {

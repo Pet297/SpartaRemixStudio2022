@@ -422,6 +422,7 @@ namespace SpartaRemixStudio2022
         public List<SimpleTrack> Tracks { get; set; }
         public string Name { get; set; }
         public int Index { get; private set; }
+        public NameColor NameColor { get; set; }
 
         public bool AcceptVariable(uint id, Stream s, int lenght)
         {
@@ -430,6 +431,7 @@ namespace SpartaRemixStudio2022
                 case 0x100: Tracks = StreamHelper.LoadList<SimpleTrack>(s, (ss) => { return UniLoad.CreateObject<SimpleTrack>(ss); }); return true;
                 case 0x101: Name = StreamHelper.LoadString(s); return true;
                 case 0x102: Index = StreamHelper.LoadUnmanaged<int>(s); return true;
+                case 0x103: NameColor = UniLoad.CreateObject<NameColor>(s); return true;
                 default: return false;
             }
         }
@@ -438,6 +440,7 @@ namespace SpartaRemixStudio2022
             Tracks = new List<SimpleTrack>();
             Name = "";
             Index = 0;
+            NameColor = new NameColor();
         }
         public void SaveVariable(uint id, Stream s)
         {
@@ -446,6 +449,7 @@ namespace SpartaRemixStudio2022
                 case 0x100: StreamHelper.SaveList(s, Tracks, (ss, Tracks0) => { UniLoad.Save(ss, Tracks0); }); break;
                 case 0x101: StreamHelper.SaveString(s, Name); break;
                 case 0x102: StreamHelper.SaveUnmanaged<int>(s, Index); break;
+                case 0x103: UniLoad.Save(s, NameColor); break;
             }
         }
         public int ReportLenghtOfVariable(uint id)
@@ -455,12 +459,13 @@ namespace SpartaRemixStudio2022
                 case 0x100: return StreamHelper.GetLenght<SimpleTrack>(Tracks, Tracks0 => { return UniLoad.GetLenght(Tracks0); });
                 case 0x101: return StreamHelper.GetLenght(Name);
                 case 0x102: return StreamHelper.GetUnmanagedLenght<int>(Index);
+                case 0x103: return UniLoad.GetLenght(NameColor);
                 default: return 0;
             }
         }
         public List<uint> GetVarNamesToSave()
         {
-            return new List<uint>() { 0x100, 0x101, 0x102 };
+            return new List<uint>() { 0x100, 0x101, 0x102, 0x103 };
         }
         public Pattern()
         {
@@ -858,7 +863,4 @@ namespace SpartaRemixStudio2022
             SetDefaultState();
         }
     }
-
-
-
 }

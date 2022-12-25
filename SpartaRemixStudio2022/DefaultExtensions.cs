@@ -397,7 +397,6 @@ namespace SpartaRemixStudio2022
         public IAudioSample RepresentedAudio { get; private set; }
         public IVideoSample RepresentedVideo { get; private set; }
 
-
         NameColor SampleName = new NameColor();
 
         public void Init(Project p)
@@ -408,6 +407,10 @@ namespace SpartaRemixStudio2022
                 RepresentedAudio = avs.AudioSample;
                 RepresentedVideo = avs.VideoSample;
                 SampleName = avs.NameColor;
+            }
+            else
+            {
+                SampleName = new NameColor() { R = 0, G = 0, B = 0, Name = "NONEXISTENT" };
             }
         }
 
@@ -432,6 +435,68 @@ namespace SpartaRemixStudio2022
         }
     }
 
+    [Export(typeof(IMediaFactory))]
+    [ExportMetadata("ID", 3082881743409395897L)]
+    [ExportMetadata("Name", "Pattern Media")]
+    [ExportMetadata("Author", "SRS-default")]
+    [ExportMetadata("Description", "Represent a placement of a pattern on timeline track.")]
+    public class PatternMediaFactory : IMediaFactory
+    {
+        public IMediaType CreateNewInstance()
+        {
+            return new SampleMedia();
+        }
+    }
+    public partial class PatternMedia : IMediaType
+    {
+        public PatternMedia(int patternID, int patternTrack)
+        {
+            this.PatternID = patternID;
+            this.PatternTrack = patternTrack;
+        }
+
+        public bool HasVideo => false;
+        public bool HasAudio => false;
+        public long FactoryID => 3082881743409395897L;
+
+        public IAudioSample RepresentedAudio => null;
+        public IVideoSample RepresentedVideo => null;
+
+        public IAudioSampleReader GetAudioReader(long position)
+        {
+            return null;
+        }
+
+        public NameColor GetNameColor()
+        {
+            return new NameColor()
+            {
+                Name = $"[P{PatternID}-{PatternTrack}] {patternName.Name}",
+                R = patternName.R,
+                G = patternName.G,
+                B = patternName.B
+            };
+        }
+
+        NameColor patternName = new NameColor();
+
+        public IVideoSampleReader GetVideoReader(long position)
+        {
+            return null;
+        }
+        public void Init(Project p)
+        {
+            Pattern pat = p.GetPatternByID(this.PatternID);
+            if (pat != null)
+            {
+                patternName = pat.NameColor;
+            }
+            else
+            {
+                patternName = new NameColor() { R = 0, G = 0, B = 0, Name = "NONEXISTENT" };
+            }
+        }
+    }
     // audio cut
     // shifting?
     // speed up?
