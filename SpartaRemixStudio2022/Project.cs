@@ -36,7 +36,7 @@ namespace SpartaRemixStudio2022
         }
         public int AddSample(IAudioSample audio, IVideoSample video)
         {
-            Samples.Add(NextSampleIndex, new AVSample(audio, video, NextSampleIndex) { NameColor = new NameColor() { R = 36, G = 72, B = 0, Name = $"Sample {NextSampleIndex}"} });
+            Samples.Add(NextSampleIndex, new AVSample(audio, video, NextSampleIndex) { NameColor = new NameColor() { R = 36, G = 72, B = 0, Name = $"Sample {NextSampleIndex}" } });
 
             EventHandler handler = SampleAdded;
             handler?.Invoke(this, new EventArgs());
@@ -60,9 +60,25 @@ namespace SpartaRemixStudio2022
         public event EventHandler SourceAdded;
         public IEnumerable<VideoSource> GetSources => Sources.Values;
         public event EventHandler SampleAdded;
-        public IEnumerable<AVSample> GetSamples => Samples.Values;
+        public IEnumerable<AVSample> GetSamples
+        {
+            get
+            {
+                List<AVSample> samples = new List<AVSample>(Samples.Values);
+                samples.Sort((a, b) => a.DisplayIndex - b.DisplayIndex);
+                return samples;
+            }
+        }
         public event EventHandler PatternAdded;
-        public IEnumerable<Pattern> GetPatterns => Patterns.Values;
+        public IEnumerable<Pattern> GetPatterns
+        {
+            get
+            {
+                List<Pattern> patterns = new List<Pattern>(Patterns.Values);
+                patterns.Sort((a, b) => a.DisplayIndex - b.DisplayIndex);
+                return patterns;
+            }
+        }
 
         public AVSample GetSampleByID(int id) => Samples.ContainsKey(id) ? Samples[id] : null;
         public VideoSource GetSourceByID(int id) => Sources.ContainsKey(id) ? Sources[id] : null;

@@ -28,8 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.PatternListFore = new System.Windows.Forms.PictureBox();
-            this.PatternListMove = new System.Windows.Forms.VScrollBar();
             this.PatternListBack = new System.Windows.Forms.Panel();
             this.PatternEditTimelineBack = new System.Windows.Forms.Panel();
             this.ButtonNewPattern = new System.Windows.Forms.Button();
@@ -37,33 +35,11 @@
             this.SelectedPattern = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.mediaLibraryControl1 = new SpartaRemixStudio2022.MediaLibraryControl();
-            ((System.ComponentModel.ISupportInitialize)(this.PatternListFore)).BeginInit();
-            this.PatternListBack.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // PatternListFore
-            // 
-            this.PatternListFore.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
-            this.PatternListFore.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.PatternListFore.Location = new System.Drawing.Point(0, 0);
-            this.PatternListFore.Name = "PatternListFore";
-            this.PatternListFore.Size = new System.Drawing.Size(260, 703);
-            this.PatternListFore.TabIndex = 0;
-            this.PatternListFore.TabStop = false;
-            // 
-            // PatternListMove
-            // 
-            this.PatternListMove.Dock = System.Windows.Forms.DockStyle.Right;
-            this.PatternListMove.Location = new System.Drawing.Point(243, 0);
-            this.PatternListMove.Name = "PatternListMove";
-            this.PatternListMove.Size = new System.Drawing.Size(17, 703);
-            this.PatternListMove.TabIndex = 1;
             // 
             // PatternListBack
             // 
             this.PatternListBack.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(255)))), ((int)(((byte)(128)))));
-            this.PatternListBack.Controls.Add(this.PatternListMove);
-            this.PatternListBack.Controls.Add(this.PatternListFore);
             this.PatternListBack.Dock = System.Windows.Forms.DockStyle.Left;
             this.PatternListBack.Location = new System.Drawing.Point(0, 0);
             this.PatternListBack.Name = "PatternListBack";
@@ -137,17 +113,12 @@
             this.Controls.Add(this.PatternListBack);
             this.Name = "FormPatternEdit";
             this.Text = "FormPatternEdit";
-            ((System.ComponentModel.ISupportInitialize)(this.PatternListFore)).EndInit();
-            this.PatternListBack.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.PictureBox PatternListFore;
-        private System.Windows.Forms.VScrollBar PatternListMove;
         private System.Windows.Forms.Panel PatternListBack;
         private System.Windows.Forms.Panel PatternEditTimelineBack;
         private System.Windows.Forms.Button ButtonNewPattern;

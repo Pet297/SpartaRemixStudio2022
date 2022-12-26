@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,12 +17,18 @@ namespace SpartaRemixStudio2022
         public Font DisplayFont = new Font("Arial", 11);
         Brush WhiteBrush = Brushes.White;
 
-        public Project p = null;
+        Project p = null;
         int offset = 0;
 
-        public PatternPicker()
+        EventHandler handler;
+
+        public PatternPicker(Project p)
         {
             InitializeComponent();
+            handler = (s, e) => { Invalidate(); };
+            this.p = p;
+            p.PatternAdded += handler;
+            
         }
 
         private void PatternPicker_Paint(object sender, PaintEventArgs e)
@@ -30,7 +37,7 @@ namespace SpartaRemixStudio2022
             foreach(Pattern pat in p.GetPatterns)
             {
                 e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(pat.NameColor.R, pat.NameColor.G, pat.NameColor.B)), new Rectangle(0, y, Width, VerticalSpacing));
-                e.Graphics.DrawString(pat.NameColor.Name, DisplayFont, WhiteBrush, 0, y);
+                e.Graphics.DrawString($"[P{pat.Index}]" + pat.NameColor.Name, DisplayFont, WhiteBrush, 0, y);
                 y += VerticalSpacing;
             }
         }
@@ -46,6 +53,12 @@ namespace SpartaRemixStudio2022
         private void PatternPicker_MouseUp(object sender, MouseEventArgs e)
         {
 
+        }
+
+        override protected void OnHandleDestroyed(EventArgs e)
+        {
+            base.OnHandleDestroyed(e);
+            p.PatternAdded -= handler;
         }
     }
 }

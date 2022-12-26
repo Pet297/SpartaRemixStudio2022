@@ -182,6 +182,7 @@ namespace SpartaRemixStudio2022
     {
         public int Index { get; private set; }
         public NameColor NameColor { get; set; }
+        public int DisplayIndex { get; set; }
         public long AudioId { get; private set; }
         public IAudioSample AudioSample { get; private set; }
         public long VideoId { get; private set; }
@@ -193,6 +194,7 @@ namespace SpartaRemixStudio2022
             {
                 case 0x100: Index = StreamHelper.LoadUnmanaged<int>(s); return true;
                 case 0x101: NameColor = UniLoad.CreateObject<NameColor>(s); return true;
+                case 0x102: DisplayIndex = StreamHelper.LoadUnmanaged<int>(s); return true;
                 case 0x1000: AudioId = StreamHelper.LoadUnmanaged<long>(s); return true;
                 case 0x2000: AudioSample = ExtensionManager.GetAudioSample(AudioId); AudioSample.SetDefaultState(); AudioSample.LoadObject(s); return true;
                 case 0x1001: VideoId = StreamHelper.LoadUnmanaged<long>(s); return true;
@@ -204,6 +206,7 @@ namespace SpartaRemixStudio2022
         {
             Index = 0;
             NameColor = new NameColor();
+            DisplayIndex = 0;
             AudioId = 0;
             AudioSample = null;
             VideoId = 0;
@@ -215,6 +218,7 @@ namespace SpartaRemixStudio2022
             {
                 case 0x100: StreamHelper.SaveUnmanaged<int>(s, Index); break;
                 case 0x101: UniLoad.Save(s, NameColor); break;
+                case 0x102: StreamHelper.SaveUnmanaged<int>(s, DisplayIndex); break;
                 case 0x1000: StreamHelper.SaveUnmanaged<long>(s, AudioId); break;
                 case 0x2000: UniLoad.Save(s, AudioSample); break;
                 case 0x1001: StreamHelper.SaveUnmanaged<long>(s, VideoId); break;
@@ -227,6 +231,7 @@ namespace SpartaRemixStudio2022
             {
                 case 0x100: return StreamHelper.GetUnmanagedLenght<int>(Index);
                 case 0x101: return UniLoad.GetLenght(NameColor);
+                case 0x102: return StreamHelper.GetUnmanagedLenght<int>(DisplayIndex);
                 case 0x1000: return StreamHelper.GetUnmanagedLenght<long>(AudioId);
                 case 0x2000: return UniLoad.GetLenght(AudioSample);
                 case 0x1001: return StreamHelper.GetUnmanagedLenght<long>(VideoId);
@@ -236,7 +241,7 @@ namespace SpartaRemixStudio2022
         }
         public List<uint> GetVarNamesToSave()
         {
-            return new List<uint>() { 0x100, 0x101, 0x1000, 0x2000, 0x1001, 0x2001 };
+            return new List<uint>() { 0x100, 0x101, 0x102, 0x1000, 0x2000, 0x1001, 0x2001 };
         }
         public AVSample()
         {
@@ -422,6 +427,7 @@ namespace SpartaRemixStudio2022
         public List<SimpleTrack> Tracks { get; set; }
         public NameColor NameColor { get; set; }
         public int Index { get; private set; }
+        public int DisplayIndex { get; set; }
         public List<TimelineGridline> Gridlines { get; set; }
 
         public bool AcceptVariable(uint id, Stream s, int lenght)
@@ -431,6 +437,7 @@ namespace SpartaRemixStudio2022
                 case 0x100: Tracks = StreamHelper.LoadList<SimpleTrack>(s, (ss) => { return UniLoad.CreateObject<SimpleTrack>(ss); }); return true;
                 case 0x101: NameColor = UniLoad.CreateObject<NameColor>(s); return true;
                 case 0x102: Index = StreamHelper.LoadUnmanaged<int>(s); return true;
+                case 0x103: DisplayIndex = StreamHelper.LoadUnmanaged<int>(s); return true;
                 case 0x200: Gridlines = StreamHelper.LoadList<TimelineGridline>(s, (ss) => { return UniLoad.CreateObject<TimelineGridline>(ss); }); return true;
                 default: return false;
             }
@@ -440,6 +447,7 @@ namespace SpartaRemixStudio2022
             Tracks = new List<SimpleTrack>();
             NameColor = new NameColor();
             Index = 0;
+            DisplayIndex = 0;
             Gridlines = new List<TimelineGridline>();
         }
         public void SaveVariable(uint id, Stream s)
@@ -449,6 +457,7 @@ namespace SpartaRemixStudio2022
                 case 0x100: StreamHelper.SaveList(s, Tracks, (ss, Tracks0) => { UniLoad.Save(ss, Tracks0); }); break;
                 case 0x101: UniLoad.Save(s, NameColor); break;
                 case 0x102: StreamHelper.SaveUnmanaged<int>(s, Index); break;
+                case 0x103: StreamHelper.SaveUnmanaged<int>(s, DisplayIndex); break;
                 case 0x200: StreamHelper.SaveList(s, Gridlines, (ss, Gridlines0) => { UniLoad.Save(ss, Gridlines0); }); break;
             }
         }
@@ -459,13 +468,14 @@ namespace SpartaRemixStudio2022
                 case 0x100: return StreamHelper.GetLenght<SimpleTrack>(Tracks, Tracks0 => { return UniLoad.GetLenght(Tracks0); });
                 case 0x101: return UniLoad.GetLenght(NameColor);
                 case 0x102: return StreamHelper.GetUnmanagedLenght<int>(Index);
+                case 0x103: return StreamHelper.GetUnmanagedLenght<int>(DisplayIndex);
                 case 0x200: return StreamHelper.GetLenght<TimelineGridline>(Gridlines, Gridlines0 => { return UniLoad.GetLenght(Gridlines0); });
                 default: return 0;
             }
         }
         public List<uint> GetVarNamesToSave()
         {
-            return new List<uint>() { 0x100, 0x101, 0x102, 0x200 };
+            return new List<uint>() { 0x100, 0x101, 0x102, 0x103, 0x200 };
         }
         public Pattern()
         {

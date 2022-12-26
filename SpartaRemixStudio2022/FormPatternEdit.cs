@@ -21,6 +21,10 @@ namespace SpartaRemixStudio2022
             InitializeComponent();
             mediaLibraryControl1.p = p;
             this.p = p;
+
+            PatternPicker picker = new PatternPicker(p);
+            picker.Parent = PatternListBack;
+            picker.Dock = DockStyle.Fill;
         }
 
         void OpenEditor(Pattern pat)
