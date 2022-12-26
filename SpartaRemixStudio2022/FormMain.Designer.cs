@@ -34,12 +34,12 @@ namespace SpartaRemixStudio2022
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.button1 = new System.Windows.Forms.Button();
             this.xTimeline = new System.Windows.Forms.Panel();
-            this.mediaLibraryControl1 = new SpartaRemixStudio2022.MediaLibraryControl();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.button5 = new System.Windows.Forms.Button();
+            this.mediaLibraryControl1 = new SpartaRemixStudio2022.MediaLibraryControl();
             this.SuspendLayout();
             // 
             // glControl1
@@ -75,13 +75,6 @@ namespace SpartaRemixStudio2022
             this.xTimeline.Name = "xTimeline";
             this.xTimeline.Size = new System.Drawing.Size(1519, 422);
             this.xTimeline.TabIndex = 2;
-            // 
-            // mediaLibraryControl1
-            // 
-            this.mediaLibraryControl1.Location = new System.Drawing.Point(934, 12);
-            this.mediaLibraryControl1.Name = "mediaLibraryControl1";
-            this.mediaLibraryControl1.Size = new System.Drawing.Size(476, 310);
-            this.mediaLibraryControl1.TabIndex = 3;
             // 
             // button2
             // 
@@ -126,6 +119,14 @@ namespace SpartaRemixStudio2022
             this.button5.TabIndex = 7;
             this.button5.Text = "Edit Patterns";
             this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
+            // mediaLibraryControl1
+            // 
+            this.mediaLibraryControl1.Location = new System.Drawing.Point(934, 12);
+            this.mediaLibraryControl1.Name = "mediaLibraryControl1";
+            this.mediaLibraryControl1.Size = new System.Drawing.Size(476, 310);
+            this.mediaLibraryControl1.TabIndex = 3;
             // 
             // FormMain
             // 

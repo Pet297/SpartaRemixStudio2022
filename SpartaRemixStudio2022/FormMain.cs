@@ -200,5 +200,11 @@ namespace SpartaRemixStudio2022
         {
             saveFileDialog1.ShowDialog();
         }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            FormPatternEdit fpe = new FormPatternEdit(p);
+            fpe.ShowDialog();
+        }
     }
 }

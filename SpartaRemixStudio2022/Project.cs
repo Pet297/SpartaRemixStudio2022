@@ -22,7 +22,7 @@ namespace SpartaRemixStudio2022
     public partial class Project
     {
         // Sources
-        public void AddSource(string File)
+        public int AddSource(string File)
         {
             //TODO: Already included?
             Sources.Add(NextSourceIndex, new VideoSource(File, NextSourceIndex));
@@ -31,8 +31,10 @@ namespace SpartaRemixStudio2022
             handler?.Invoke(this, new EventArgs());
 
             NextSourceIndex++;
+
+            return NextSourceIndex - 1;
         }
-        public void AddSample(IAudioSample audio, IVideoSample video)
+        public int AddSample(IAudioSample audio, IVideoSample video)
         {
             Samples.Add(NextSampleIndex, new AVSample(audio, video, NextSampleIndex) { NameColor = new NameColor() { R = 36, G = 72, B = 0, Name = $"Sample {NextSampleIndex}"} });
 
@@ -40,7 +42,21 @@ namespace SpartaRemixStudio2022
             handler?.Invoke(this, new EventArgs());
 
             NextSampleIndex++;
+
+            return NextSampleIndex - 1;
         }
+        public int AddPattern()
+        {
+            Patterns.Add(NextPatternIndex, new Pattern());
+
+            EventHandler handler = PatternAdded;
+            handler?.Invoke(this, new EventArgs());
+
+            NextPatternIndex++;
+
+            return NextPatternIndex - 1;
+        }
+
         public event EventHandler SourceAdded;
         public IEnumerable<VideoSource> GetSources => Sources.Values;
         public event EventHandler SampleAdded;

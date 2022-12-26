@@ -130,6 +130,12 @@
     <Compile Include="MediaLibraryControl.Designer.cs">
       <DependentUpon>MediaLibraryControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="PatternPicker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PatternPicker.Designer.cs">
+      <DependentUpon>PatternPicker.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Project.cs" />
     <Compile Include="ProjectAutogen.cs" />
@@ -178,6 +184,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MediaLibraryControl.resx">
       <DependentUpon>MediaLibraryControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PatternPicker.resx">
+      <DependentUpon>PatternPicker.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ProjectSelectForm.resx">
       <DependentUpon>ProjectSelectForm.cs</DependentUpon>
