@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace SpartaRemixStudio2022
 {
-    public partial class TimelineControl : UserControl
+    public partial class TimelineControl<T> : UserControl where T : IEditableTrack
     {
         public MediaLibraryControl Mlc
         {
@@ -20,15 +20,15 @@ namespace SpartaRemixStudio2022
             set
             {
                 mlc = value;
-                foreach (TrackControl trackControl in trackControls)
+                foreach (TrackControl<T> trackControl in trackControls)
                 {
                     trackControl.mlc = mlc;
                 }
             }
         }
         MediaLibraryControl mlc;
-        readonly List<TrackControl> trackControls = new List<TrackControl>();
-        readonly Timeline timeline;
+        readonly List<TrackControl<T>> trackControls = new List<TrackControl<T>>();
+        readonly IEditableTimeline<T> timeline;
         public long StartTime = 0;
         public long SamplesPerPixel = 50;
         public int TrackHeight = 100;
@@ -44,7 +44,7 @@ namespace SpartaRemixStudio2022
         public bool RoundingMode = true;
         public int MaxPixelsForRounding = 40;
 
-        public TimelineControl(Timeline t)
+        public TimelineControl(IEditableTimeline<T> t)
         {
             InitializeComponent();
             timeline = t;
@@ -52,9 +52,9 @@ namespace SpartaRemixStudio2022
             int y = 0;
             UpdateGridlines();
 
-            foreach (Track track in timeline.Tracks)
+            foreach (T track in timeline.Tracks)
             {
-                TrackControl tc = new TrackControl(this, timeline, track)
+                TrackControl<T> tc = new TrackControl<T>(this, timeline, track)
                 {
                     Width = PanelTracks.Width,
                     Height = TrackHeight,
@@ -241,7 +241,7 @@ namespace SpartaRemixStudio2022
         private void HScrollTime_Scroll(object sender, ScrollEventArgs e)
         {
             StartTime = SamplesPerPixel * HScrollTime.Value;
-            foreach(TrackControl tc in trackControls)
+            foreach(TrackControl<T> tc in trackControls)
             {
                 Invalidate(true);
             }
@@ -249,7 +249,7 @@ namespace SpartaRemixStudio2022
 
         private void PanelTracks_SizeChanged(object sender, EventArgs e)
         {
-            foreach (TrackControl tc in trackControls)
+            foreach (TrackControl<T> tc in trackControls)
             {
                 tc.Width = PanelTracks.Width;
             }

@@ -31,7 +31,7 @@ namespace SpartaRemixStudio2022
             // DEBUG
             p.timeline.Tracks.Add(new Track());
             p.timeline.Tracks[0].SetType(new RegularTrackFactory().CreateNewInstance(p.timeline.Tracks[0]));
-            TimelineControl tlc = new TimelineControl(p.timeline);
+            TimelineControl<Track> tlc = new TimelineControl<Track>(p.timeline);
             tlc.GenerateGridLines(140, 0, 100);
 
             tlc.Mlc = mediaLibraryControl1;
@@ -53,7 +53,7 @@ namespace SpartaRemixStudio2022
             fs.Dispose();
             p.DoPostLoadActions();
             mediaLibraryControl1.p = p;
-            TimelineControl tlc = new TimelineControl(p.timeline);
+            TimelineControl<Track> tlc = new TimelineControl<Track>(p.timeline);
             tlc.Mlc = mediaLibraryControl1;
             tlc.Parent = xTimeline;
             tlc.Dock = DockStyle.Fill;

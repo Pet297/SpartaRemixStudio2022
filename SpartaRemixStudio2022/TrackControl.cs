@@ -12,13 +12,13 @@ using static OpenTK.Graphics.OpenGL.GL;
 
 namespace SpartaRemixStudio2022
 {
-    public partial class TrackControl : UserControl
+    public partial class TrackControl<T> : UserControl where T : IEditableTrack
     {
         public MediaLibraryControl mlc;
 
-        TimelineControl tlc;
-        Timeline tl;
-        Track t;
+        TimelineControl<T> tlc;
+        IEditableTimeline<T> tl;
+        T t;
 
         long dropLocation = 0;
         bool draging = false;
@@ -108,7 +108,7 @@ namespace SpartaRemixStudio2022
             return ret;
         }
 
-        public TrackControl(TimelineControl tlc, Timeline timeline, Track track)
+        public TrackControl(TimelineControl<T> tlc, IEditableTimeline<T> timeline, T track)
         {
             InitializeComponent();
             t = track;

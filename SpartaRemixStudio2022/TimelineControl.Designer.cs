@@ -1,6 +1,6 @@
 ﻿namespace SpartaRemixStudio2022
 {
-    partial class TimelineControl
+    partial class TimelineControl<T> where T : IEditableTrack
     {
         /// <summary> 
         /// Vyžaduje se proměnná návrháře.

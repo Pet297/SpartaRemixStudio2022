@@ -7,6 +7,18 @@ using System.Linq;
 
 namespace SpartaRemixStudio2022
 {
+    public interface IEditableTimeline<T> where T : IEditableTrack
+    {
+        List<TimelineGridline> Gridlines { get; }
+        List<T> Tracks { get; }
+    }
+    public interface IEditableTrack
+    {
+        void AddMedia(Media m);
+        void RemoveMedia(Media m);
+        IEnumerable<Media> GetMedia { get; }
+    }
+
     public partial class Project
     {
         // Sources
@@ -213,7 +225,7 @@ namespace SpartaRemixStudio2022
 
     }
 
-    public partial class Timeline
+    public partial class Timeline : IEditableTimeline<Track>
     {
     }
     public partial class TimelineGridline
@@ -228,11 +240,11 @@ namespace SpartaRemixStudio2022
             this.B = B;
         }
     }
-    public partial class Pattern
+    public partial class Pattern : IEditableTimeline<SimpleTrack>
     {
 
     }
-    public partial class SimpleTrack
+    public partial class SimpleTrack : IEditableTrack
     {
         public void SortMedia() => TrackMedia.Sort((a, b) => { return a.Position.CompareTo(b.Position); });
         public void AddMedia(Media m)
@@ -244,6 +256,7 @@ namespace SpartaRemixStudio2022
         {
             TrackMedia.Remove(m);
         }
+        public IEnumerable<Media> GetMedia => TrackMedia.AsReadOnly();
 
         public Tuple<Media, int> CheckForNewMediaFast(int currentIndex, long newTimeStamp)
         {
@@ -256,14 +269,9 @@ namespace SpartaRemixStudio2022
             return newMedia;
         }
         public Tuple<Media, int> BeginAt(long timeStamp) => CheckForNewMediaFast(-1, timeStamp);
-
-        public IEnumerable<Media> EnumerateMedia()
-        {
-            foreach (Media m in TrackMedia) yield return m;
-        }
     }
 
-    public partial class Track
+    public partial class Track : IEditableTrack
     {
         public void SortMedia()
         {
@@ -279,7 +287,7 @@ namespace SpartaRemixStudio2022
         {
             TrackMedia.Remove(m);
         }
-        public ReadOnlyCollection<Media> GetMedia => TrackMedia.AsReadOnly();
+        public IEnumerable<Media> GetMedia => TrackMedia.AsReadOnly();
 
         public void SetType(ITrackType trackType)
         {
@@ -323,7 +331,7 @@ namespace SpartaRemixStudio2022
                     if (pat != null && pm.PatternTrack >= 0 && pm.PatternTrack < pat.Tracks.Count)
                     {
                         SimpleTrack st = new SimpleTrack();
-                        foreach (Media m2 in st.EnumerateMedia())
+                        foreach (Media m2 in st.GetMedia)
                         {
                             Media n = new Media(m.ExtType);
 
