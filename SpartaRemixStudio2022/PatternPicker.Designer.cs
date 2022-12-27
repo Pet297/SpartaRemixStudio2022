@@ -45,6 +45,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.Controls.Add(this.vScrollBar1);
+            this.DoubleBuffered = true;
             this.Name = "PatternPicker";
             this.Size = new System.Drawing.Size(286, 502);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.PatternPicker_Paint);

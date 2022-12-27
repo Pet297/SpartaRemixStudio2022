@@ -14,6 +14,7 @@ namespace SpartaRemixStudio2022
     public partial class FormPatternEdit : Form
     {
         TimelineControl<SimpleTrack> PatternEditor = null;
+        EventHandler handler = null;
 
         Project p = null; 
         public FormPatternEdit(Project p)
@@ -25,6 +26,8 @@ namespace SpartaRemixStudio2022
             PatternPicker picker = new PatternPicker(p);
             picker.Parent = PatternListBack;
             picker.Dock = DockStyle.Fill;
+            handler = (s, e) => { MessageBox.Show("Picked"); };
+            picker.PatternPicked += handler;
         }
 
         void OpenEditor(Pattern pat)

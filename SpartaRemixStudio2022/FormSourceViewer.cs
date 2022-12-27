@@ -30,7 +30,7 @@ namespace SpartaRemixStudio2022
             this.p = p;
             listBox1.DataSource = p.GetSources.ToList();
             handler = (s, e) => listBox1.DataSource = p.GetSources.ToList();
-            p.SourceAdded += handler;
+            p.SourcesChanged += handler;
         }
 
 
@@ -56,7 +56,7 @@ namespace SpartaRemixStudio2022
 
         private void FormSourceViewer_FormClosing(object sender, FormClosingEventArgs e)
         {
-            p.SourceAdded -= handler;
+            p.SourcesChanged -= handler;
         }
 
         private void timer1_Tick(object sender, EventArgs e)

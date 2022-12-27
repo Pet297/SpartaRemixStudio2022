@@ -27,7 +27,7 @@ namespace SpartaRemixStudio2022
             //TODO: Already included?
             Sources.Add(NextSourceIndex, new VideoSource(File, NextSourceIndex));
 
-            EventHandler handler = SourceAdded;
+            EventHandler handler = SourcesChanged;
             handler?.Invoke(this, new EventArgs());
 
             NextSourceIndex++;
@@ -38,7 +38,7 @@ namespace SpartaRemixStudio2022
         {
             Samples.Add(NextSampleIndex, new AVSample(audio, video, NextSampleIndex) { NameColor = new NameColor() { R = 36, G = 72, B = 0, Name = $"Sample {NextSampleIndex}" } });
 
-            EventHandler handler = SampleAdded;
+            EventHandler handler = SamplesChanged;
             handler?.Invoke(this, new EventArgs());
 
             NextSampleIndex++;
@@ -47,9 +47,9 @@ namespace SpartaRemixStudio2022
         }
         public int AddPattern()
         {
-            Patterns.Add(NextPatternIndex, new Pattern());
+            Patterns.Add(NextPatternIndex, new Pattern(NextPatternIndex));
 
-            EventHandler handler = PatternAdded;
+            EventHandler handler = PatternsChanged;
             handler?.Invoke(this, new EventArgs());
 
             NextPatternIndex++;
@@ -57,9 +57,25 @@ namespace SpartaRemixStudio2022
             return NextPatternIndex - 1;
         }
 
-        public event EventHandler SourceAdded;
+        public void UpdateSources()
+        {
+            EventHandler handler = SourcesChanged;
+            handler?.Invoke(this, new EventArgs());
+        }
+        public void UpdateSamples()
+        {
+            EventHandler handler = SamplesChanged;
+            handler?.Invoke(this, new EventArgs());
+        }
+        public void UpdatePatterns()
+        {
+            EventHandler handler = PatternsChanged;
+            handler?.Invoke(this, new EventArgs());
+        }
+
+        public event EventHandler SourcesChanged;
         public IEnumerable<VideoSource> GetSources => Sources.Values;
-        public event EventHandler SampleAdded;
+        public event EventHandler SamplesChanged;
         public IEnumerable<AVSample> GetSamples
         {
             get
@@ -69,7 +85,7 @@ namespace SpartaRemixStudio2022
                 return samples;
             }
         }
-        public event EventHandler PatternAdded;
+        public event EventHandler PatternsChanged;
         public IEnumerable<Pattern> GetPatterns
         {
             get
@@ -274,7 +290,14 @@ namespace SpartaRemixStudio2022
     }
     public partial class Pattern : IEditableTimeline<SimpleTrack>
     {
-
+        public Pattern(int index)
+        {
+            this.Index = index;
+            this.NameColor = new NameColor() { R = 20, G = 20, B = 20, Name = "Pattern" };
+            this.DisplayIndex = index;
+            this.Tracks = new List<SimpleTrack>();
+            this.Tracks.Add(new SimpleTrack());
+        }
     }
     public partial class SimpleTrack : IEditableTrack
     {
