@@ -32,7 +32,6 @@ namespace SpartaRemixStudio2022
             p.timeline.Tracks.Add(new Track());
             p.timeline.Tracks[0].SetType(new RegularTrackFactory().CreateNewInstance(p.timeline.Tracks[0]));
             TimelineControl<Track> tlc = new TimelineControl<Track>(p.timeline);
-            tlc.GenerateGridLines(140, 0, 100);
 
             tlc.Mlc = mediaLibraryControl1;
             tlc.Parent = xTimeline;

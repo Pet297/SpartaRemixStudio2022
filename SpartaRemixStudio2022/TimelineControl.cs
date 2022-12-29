@@ -144,16 +144,13 @@ namespace SpartaRemixStudio2022
             long minDiff = maxDiff;
             long best = time;
 
-            foreach (TimelineGridline tc in timeline.Gridlines)
+            foreach (TimelineGridline tc in visibleGridlines)
             {
-                if (SamplesPerPixel <= tc.MaxSamplesPerPixel)
+                long diff = Math.Abs(tc.Position - time);
+                if (diff < minDiff)
                 {
-                    long diff = Math.Abs(tc.Position - time);
-                    if (diff < minDiff)
-                    {
-                        minDiff = diff;
-                        best = tc.Position;
-                    }
+                    minDiff = diff;
+                    best = tc.Position;
                 }
             }
             return best;
@@ -180,62 +177,10 @@ namespace SpartaRemixStudio2022
             return new Tuple<long, long>(best, best2);
         }
 
-        public void GenerateGridLines(float BPM, long startTime, int beats)
-        {
-            timeline.Gridlines.Clear();
-            // 32 per beat
-            for (int i = 0; i < beats; i++)
-            {
-                for (int j = 0; j < 96; j++)
-                {
-                    byte color = 25;
-
-                    if (i % 2 == 0) color -= 5;
-
-                    if (j % 24 >= 18) color -= 0;
-                    else if (j % 24 >= 12) color -= 2;
-                    else if (j % 24 >= 6) color -= 3;
-                    else  color -= 5;
-
-                    if (j % 6 < 3) color /= 2;
-
-                    if (j % 3 == 2) color += 4;
-                    if (j % 3 == 1) color += 2;
-
-                    float offset = (i * 96 + j) * (48000L * 240) / (BPM * 96f) + startTime;
-
-                    int visibility = 50; //PLACE HOLDER
-                    if (j % 3 == 0) visibility *= 3;
-                    if (j % 6 == 0) visibility *= 2;
-                    if (j % 12 == 0) visibility *= 2;
-                    if (j % 24 == 0) visibility *= 2;
-                    if (j % 48 == 0) visibility *= 2;
-                    if (j % 96 == 0)
-                    {
-                        visibility *= 2;
-                        int more = i;
-                        while (more % 2 == 0 && more != 0)
-                        {
-                            more /= 2;
-                            visibility *= 2;
-                        }
-                        if (more == 0) visibility = int.MaxValue;
-                    }
-
-                    string name = "";
-                    if (j % 24 == 0)  name = $"{i}.{j / 24 % 4}";
-                    else if (j % 6 == 0) name = $"-";
-                    timeline.Gridlines.Add(new TimelineGridline((long)offset, visibility, name, color, color, color));
-                }
-            }
-        }
         void UpdateGridlines()
         {
-            visibleGridlines = new List<TimelineGridline>(timeline.Gridlines);
-            visibleGridlines.RemoveAll((tg) => (tg.MaxSamplesPerPixel <= SamplesPerPixel));
-
-            visibleGridlinesRuler = new List<TimelineGridline>(timeline.Gridlines);
-            visibleGridlinesRuler.RemoveAll((tg) => (tg.MaxSamplesPerPixel <= SamplesPerPixel * 2));
+            visibleGridlines = GridlineHelper.GetGridlines(SamplesPerPixel * MaxPixelsForRounding, timeline.Tempo, StartTime, StartTime + SamplesPerPixel * Width);
+            visibleGridlinesRuler = GridlineHelper.GetGridlines(SamplesPerPixel * MaxPixelsForRounding * 2, timeline.Tempo, StartTime, StartTime + SamplesPerPixel * Width);
         }
 
         private void HScrollTime_Scroll(object sender, ScrollEventArgs e)

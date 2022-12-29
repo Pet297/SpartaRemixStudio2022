@@ -19,6 +19,7 @@ namespace SpartaRemixStudio2022
         private Dictionary<int, Pattern> Patterns { get; set; }
         private int NextPatternIndex { get; set; }
         public Timeline timeline { get; private set; }
+        public float DefaultTempo { get; set; }
 
         public bool AcceptVariable(uint id, Stream s, int lenght)
         {
@@ -31,6 +32,7 @@ namespace SpartaRemixStudio2022
                 case 0x120: Patterns = StreamHelper.LoadDictionary<int, Pattern>(s, (ss) => { return StreamHelper.LoadUnmanaged<int>(ss); }, (ss) => { return UniLoad.CreateObject<Pattern>(ss); }); return true;
                 case 0x121: NextPatternIndex = StreamHelper.LoadUnmanaged<int>(s); return true;
                 case 0x200: timeline = UniLoad.CreateObject<Timeline>(s); return true;
+                case 0x300: DefaultTempo = StreamHelper.LoadUnmanaged<float>(s); return true;
                 default: return false;
             }
         }
@@ -43,6 +45,7 @@ namespace SpartaRemixStudio2022
             Patterns = new Dictionary<int, Pattern>();
             NextPatternIndex = 0;
             timeline = new Timeline();
+            DefaultTempo = 140.000f;
         }
         public void SaveVariable(uint id, Stream s)
         {
@@ -55,6 +58,7 @@ namespace SpartaRemixStudio2022
                 case 0x120: StreamHelper.SaveDictionary(s, Patterns, (ss, Patterns0) => { StreamHelper.SaveUnmanaged<int>(ss, Patterns0); }, (ss, Patterns0) => { UniLoad.Save(ss, Patterns0); }); break;
                 case 0x121: StreamHelper.SaveUnmanaged<int>(s, NextPatternIndex); break;
                 case 0x200: UniLoad.Save(s, timeline); break;
+                case 0x300: StreamHelper.SaveUnmanaged<float>(s, DefaultTempo); break;
             }
         }
         public int ReportLenghtOfVariable(uint id)
@@ -68,12 +72,13 @@ namespace SpartaRemixStudio2022
                 case 0x120: return StreamHelper.GetLenght<int, Pattern>(Patterns, Patterns0 => { return StreamHelper.GetUnmanagedLenght<int>(Patterns0); }, Patterns0 => { return UniLoad.GetLenght(Patterns0); });
                 case 0x121: return StreamHelper.GetUnmanagedLenght<int>(NextPatternIndex);
                 case 0x200: return UniLoad.GetLenght(timeline);
+                case 0x300: return StreamHelper.GetUnmanagedLenght<float>(DefaultTempo);
                 default: return 0;
             }
         }
         public List<uint> GetVarNamesToSave()
         {
-            return new List<uint>() { 0x100, 0x101, 0x110, 0x111, 0x120, 0x121, 0x200 };
+            return new List<uint>() { 0x100, 0x101, 0x110, 0x111, 0x120, 0x121, 0x200, 0x300 };
         }
         public Project()
         {
@@ -309,7 +314,7 @@ namespace SpartaRemixStudio2022
     {
         public List<Track> Tracks { get; set; }
         public string Name { get; set; }
-        public List<TimelineGridline> Gridlines { get; set; }
+        public float Tempo { get; set; }
 
         public bool AcceptVariable(uint id, Stream s, int lenght)
         {
@@ -317,7 +322,7 @@ namespace SpartaRemixStudio2022
             {
                 case 0x100: Tracks = StreamHelper.LoadList<Track>(s, (ss) => { return UniLoad.CreateObject<Track>(ss); }); return true;
                 case 0x101: Name = StreamHelper.LoadString(s); return true;
-                case 0x200: Gridlines = StreamHelper.LoadList<TimelineGridline>(s, (ss) => { return UniLoad.CreateObject<TimelineGridline>(ss); }); return true;
+                case 0x202: Tempo = StreamHelper.LoadUnmanaged<float>(s); return true;
                 default: return false;
             }
         }
@@ -325,7 +330,7 @@ namespace SpartaRemixStudio2022
         {
             Tracks = new List<Track>();
             Name = "";
-            Gridlines = new List<TimelineGridline>();
+            Tempo = 140.000f;
         }
         public void SaveVariable(uint id, Stream s)
         {
@@ -333,7 +338,7 @@ namespace SpartaRemixStudio2022
             {
                 case 0x100: StreamHelper.SaveList(s, Tracks, (ss, Tracks0) => { UniLoad.Save(ss, Tracks0); }); break;
                 case 0x101: StreamHelper.SaveString(s, Name); break;
-                case 0x200: StreamHelper.SaveList(s, Gridlines, (ss, Gridlines0) => { UniLoad.Save(ss, Gridlines0); }); break;
+                case 0x202: StreamHelper.SaveUnmanaged<float>(s, Tempo); break;
             }
         }
         public int ReportLenghtOfVariable(uint id)
@@ -342,81 +347,15 @@ namespace SpartaRemixStudio2022
             {
                 case 0x100: return StreamHelper.GetLenght<Track>(Tracks, Tracks0 => { return UniLoad.GetLenght(Tracks0); });
                 case 0x101: return StreamHelper.GetLenght(Name);
-                case 0x200: return StreamHelper.GetLenght<TimelineGridline>(Gridlines, Gridlines0 => { return UniLoad.GetLenght(Gridlines0); });
+                case 0x202: return StreamHelper.GetUnmanagedLenght<float>(Tempo);
                 default: return 0;
             }
         }
         public List<uint> GetVarNamesToSave()
         {
-            return new List<uint>() { 0x100, 0x101, 0x200 };
+            return new List<uint>() { 0x100, 0x101, 0x202 };
         }
         public Timeline()
-        {
-            SetDefaultState();
-        }
-    }
-
-    partial class TimelineGridline : IComplexObject
-    {
-        public long Position { get; private set; }
-        public float MaxSamplesPerPixel { get; private set; }
-        public string Name { get; private set; }
-        public byte R { get; private set; }
-        public byte G { get; private set; }
-        public byte B { get; private set; }
-
-        public bool AcceptVariable(uint id, Stream s, int lenght)
-        {
-            switch (id)
-            {
-                case 0x100: Position = StreamHelper.LoadUnmanaged<long>(s); return true;
-                case 0x101: MaxSamplesPerPixel = StreamHelper.LoadUnmanaged<float>(s); return true;
-                case 0x102: Name = StreamHelper.LoadString(s); return true;
-                case 0x200: R = StreamHelper.LoadUnmanaged<byte>(s); return true;
-                case 0x201: G = StreamHelper.LoadUnmanaged<byte>(s); return true;
-                case 0x202: B = StreamHelper.LoadUnmanaged<byte>(s); return true;
-                default: return false;
-            }
-        }
-        public void SetDefaultState()
-        {
-            Position = 0;
-            MaxSamplesPerPixel = 10;
-            Name = "";
-            R = 0;
-            G = 0;
-            B = 0;
-        }
-        public void SaveVariable(uint id, Stream s)
-        {
-            switch (id)
-            {
-                case 0x100: StreamHelper.SaveUnmanaged<long>(s, Position); break;
-                case 0x101: StreamHelper.SaveUnmanaged<float>(s, MaxSamplesPerPixel); break;
-                case 0x102: StreamHelper.SaveString(s, Name); break;
-                case 0x200: StreamHelper.SaveUnmanaged<byte>(s, R); break;
-                case 0x201: StreamHelper.SaveUnmanaged<byte>(s, G); break;
-                case 0x202: StreamHelper.SaveUnmanaged<byte>(s, B); break;
-            }
-        }
-        public int ReportLenghtOfVariable(uint id)
-        {
-            switch (id)
-            {
-                case 0x100: return StreamHelper.GetUnmanagedLenght<long>(Position);
-                case 0x101: return StreamHelper.GetUnmanagedLenght<float>(MaxSamplesPerPixel);
-                case 0x102: return StreamHelper.GetLenght(Name);
-                case 0x200: return StreamHelper.GetUnmanagedLenght<byte>(R);
-                case 0x201: return StreamHelper.GetUnmanagedLenght<byte>(G);
-                case 0x202: return StreamHelper.GetUnmanagedLenght<byte>(B);
-                default: return 0;
-            }
-        }
-        public List<uint> GetVarNamesToSave()
-        {
-            return new List<uint>() { 0x100, 0x101, 0x102, 0x200, 0x201, 0x202 };
-        }
-        public TimelineGridline()
         {
             SetDefaultState();
         }
@@ -428,7 +367,7 @@ namespace SpartaRemixStudio2022
         public NameColor NameColor { get; set; }
         public int Index { get; private set; }
         public int DisplayIndex { get; set; }
-        public List<TimelineGridline> Gridlines { get; set; }
+        public float Tempo { get; set; }
 
         public bool AcceptVariable(uint id, Stream s, int lenght)
         {
@@ -438,7 +377,7 @@ namespace SpartaRemixStudio2022
                 case 0x101: NameColor = UniLoad.CreateObject<NameColor>(s); return true;
                 case 0x102: Index = StreamHelper.LoadUnmanaged<int>(s); return true;
                 case 0x103: DisplayIndex = StreamHelper.LoadUnmanaged<int>(s); return true;
-                case 0x200: Gridlines = StreamHelper.LoadList<TimelineGridline>(s, (ss) => { return UniLoad.CreateObject<TimelineGridline>(ss); }); return true;
+                case 0x202: Tempo = StreamHelper.LoadUnmanaged<float>(s); return true;
                 default: return false;
             }
         }
@@ -448,7 +387,7 @@ namespace SpartaRemixStudio2022
             NameColor = new NameColor();
             Index = 0;
             DisplayIndex = 0;
-            Gridlines = new List<TimelineGridline>();
+            Tempo = 140.000f;
         }
         public void SaveVariable(uint id, Stream s)
         {
@@ -458,7 +397,7 @@ namespace SpartaRemixStudio2022
                 case 0x101: UniLoad.Save(s, NameColor); break;
                 case 0x102: StreamHelper.SaveUnmanaged<int>(s, Index); break;
                 case 0x103: StreamHelper.SaveUnmanaged<int>(s, DisplayIndex); break;
-                case 0x200: StreamHelper.SaveList(s, Gridlines, (ss, Gridlines0) => { UniLoad.Save(ss, Gridlines0); }); break;
+                case 0x202: StreamHelper.SaveUnmanaged<float>(s, Tempo); break;
             }
         }
         public int ReportLenghtOfVariable(uint id)
@@ -469,13 +408,13 @@ namespace SpartaRemixStudio2022
                 case 0x101: return UniLoad.GetLenght(NameColor);
                 case 0x102: return StreamHelper.GetUnmanagedLenght<int>(Index);
                 case 0x103: return StreamHelper.GetUnmanagedLenght<int>(DisplayIndex);
-                case 0x200: return StreamHelper.GetLenght<TimelineGridline>(Gridlines, Gridlines0 => { return UniLoad.GetLenght(Gridlines0); });
+                case 0x202: return StreamHelper.GetUnmanagedLenght<float>(Tempo);
                 default: return 0;
             }
         }
         public List<uint> GetVarNamesToSave()
         {
-            return new List<uint>() { 0x100, 0x101, 0x102, 0x103, 0x200 };
+            return new List<uint>() { 0x100, 0x101, 0x102, 0x103, 0x202 };
         }
         public Pattern()
         {

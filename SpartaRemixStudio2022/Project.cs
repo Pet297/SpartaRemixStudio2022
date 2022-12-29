@@ -9,7 +9,7 @@ namespace SpartaRemixStudio2022
 {
     public interface IEditableTimeline<T> where T : IEditableTrack
     {
-        List<TimelineGridline> Gridlines { get; }
+        float Tempo { get; }
         List<T> Tracks { get; }
     }
     public interface IEditableTrack
@@ -276,18 +276,6 @@ namespace SpartaRemixStudio2022
     public partial class Timeline : IEditableTimeline<Track>
     {
     }
-    public partial class TimelineGridline
-    {
-        public TimelineGridline(long position, float maxSamplesPerPixel, string name, byte R, byte G, byte B)
-        {
-            Position = position;
-            MaxSamplesPerPixel = maxSamplesPerPixel;
-            Name = name;
-            this.R = R;
-            this.G = G;
-            this.B = B;
-        }
-    }
     public partial class Pattern : IEditableTimeline<SimpleTrack>
     {
         public Pattern(int index)
@@ -471,6 +459,69 @@ namespace SpartaRemixStudio2022
         {
             long positionIn = position - m.Position;
             return m.ExtType?.RepresentedVideo?.GetReader(m.StartTime + positionIn / 48_000f, m.Pitch, m.Speed, m.Formant, m.ModX, m.ModY);
+        }
+    }
+    public static class GridlineHelper
+    {
+        public static List<TimelineGridline> GetGridlines(long minimalDistanceSamples, float BPM, long timeFrom, long timeTo)
+        {
+            long resolution = 3;
+
+            while (resolution * 60000 / BPM < minimalDistanceSamples)
+            {
+                resolution *= 2;
+            }
+
+            double timeStepSmp = resolution * 60000 / BPM;
+            double indexFrom = timeFrom / timeStepSmp;
+            double indexTo = timeTo / timeStepSmp;
+            long indexFromR = (long)Math.Floor(indexFrom);
+            long indexToR = (long)Math.Floor(indexTo);
+
+            List<TimelineGridline> gridlines = new List<TimelineGridline>();
+            for (long i = indexFromR; i <= indexToR; i++)
+            {
+                long trueIndex = resolution * i;
+                Tuple<byte, byte, byte> color = GetGridlineColor(trueIndex);
+                string text = GetGridlineText(trueIndex);
+
+                gridlines.Add(new TimelineGridline((int)(i * timeStepSmp), text, color.Item1, color.Item2, color.Item3));
+            }
+            return gridlines;
+        }
+        private static Tuple<byte,byte,byte> GetGridlineColor(long trueIndex)
+        {
+            byte color = 20;
+            if (trueIndex / 768 % 2 == 1) color = 15;
+            if (trueIndex / 96 % 2 == 1) color += 6;
+            if (trueIndex / 48 % 2 == 1) color += 3;
+            if (trueIndex / 24 % 2 == 1) color += 3;
+            if (trueIndex / 12 % 2 == 1) color += 3;
+            if (trueIndex / 6 % 2 == 1) color += 3;
+            return new Tuple<byte, byte, byte>(color, color, color);
+        }
+        private static string GetGridlineText(long trueIndex)
+        {
+            if (trueIndex % 48 == 0) return $"{trueIndex / 192}.{trueIndex / 48 % 4}";
+            if (trueIndex % 12 == 0) return $"{trueIndex / 192}.{trueIndex / 48 % 4} {trueIndex / 12 % 4}/4";
+            return "";
+        }
+    }
+    public class TimelineGridline
+    {
+        public long Position { get; private set; }
+        public string Name { get; private set; }
+        public byte R { get; private set; }
+        public byte G { get; private set; }
+        public byte B { get; private set; }
+
+        public TimelineGridline(long positionSamples, string text, byte r, byte g, byte b)
+        {
+            Position = positionSamples;
+            Name = text;
+            R = r;
+            G = g;
+            B = b;
         }
     }
 }

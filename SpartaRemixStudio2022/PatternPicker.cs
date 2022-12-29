@@ -135,5 +135,13 @@ namespace SpartaRemixStudio2022
             base.OnHandleDestroyed(e);
             p.PatternsChanged -= handler;
         }
+
+        public Pattern SelectedPattern
+        {
+            get
+            {
+                return selectedPattern;
+            }
+        }
     }
 }

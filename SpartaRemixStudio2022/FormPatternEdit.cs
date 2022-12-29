@@ -26,7 +26,7 @@ namespace SpartaRemixStudio2022
             PatternPicker picker = new PatternPicker(p);
             picker.Parent = PatternListBack;
             picker.Dock = DockStyle.Fill;
-            handler = (s, e) => { MessageBox.Show("Picked"); };
+            handler = (s, e) => { CloseEditor(); OpenEditor(picker.SelectedPattern); };
             picker.PatternPicked += handler;
         }
 
@@ -38,9 +38,12 @@ namespace SpartaRemixStudio2022
         }
         void CloseEditor()
         {
-            PatternEditor.Parent = null;
-            PatternEditor.Dispose();
-            PatternEditor = null;
+            if (PatternEditor != null)
+            {
+                PatternEditor.Parent = null;
+                PatternEditor.Dispose();
+                PatternEditor = null;
+            }
         }
 
         private void ButtonNewPattern_Click(object sender, EventArgs e)
